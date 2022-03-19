@@ -19,10 +19,9 @@ public class Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        move.x = Input.GetAxisRaw("Horizontal");
-        move.z = Input.GetAxisRaw("Vertical");
+        // Move the character relative to the direction they are facing.
+        move = Input.GetAxisRaw("Horizontal") * transform.right + Input.GetAxisRaw("Vertical") * transform.forward;
     }
-
 
     /*
      * FixedUpdate is where movement/physics based operations should take place.
