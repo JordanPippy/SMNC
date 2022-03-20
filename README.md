@@ -1,3 +1,5 @@
 # SMNC
 
-SMNC Inspried Unity Game
+SMNC Inspired Unity Game
+
+A really exciting description will go here someday!
