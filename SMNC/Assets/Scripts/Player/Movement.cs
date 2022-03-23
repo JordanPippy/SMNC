@@ -34,7 +34,7 @@ public class Movement : MonoBehaviour
         controller = GetComponent<CharacterController>();
         move = Vector3.zero;
         jump = false;
-        hardFalling = false;
+        hardFalling = true;
         playerVerticalVelocity.y = gravity * Time.deltaTime;
     }
 
@@ -96,12 +96,13 @@ public class Movement : MonoBehaviour
             //This else is when the player is not jumping and is grounded.
             playerVerticalVelocity.y = gravity * Time.deltaTime;
         }
+        Debug.Log(playerVerticalVelocity.y);
 
         move = move.normalized;
         controller.Move(move * moveSpeed * Time.deltaTime);
 
         // Add gravity to player's vertical velocity. 
-        //playerVerticalVelocity.y -= gravity; 
+        //playerVerticalVelocity.y -= gravity;
         controller.Move(playerVerticalVelocity * Time.deltaTime); 
     }
 }
