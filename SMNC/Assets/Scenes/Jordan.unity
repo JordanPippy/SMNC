@@ -2407,10 +2407,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 10
-  gravity: 9.8
+  gravity: -9.8
   jumpHeight: 5
-  jumpDuration: 0.1
+  jumpDuration: 0.005
   playerVerticalVelocity: {x: 0, y: 0, z: 0}
+  floatingJumpModifier: 1.5
 --- !u!143 &8654250720620240952
 CharacterController:
   m_ObjectHideFlags: 0
@@ -2474,9 +2475,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   projectile: {fileID: 2010415504639872752, guid: 204f350af7fd5904e838569061554b45, type: 3}
-  heightOffset: 0
   distanceFromPlayer: 0
-  height: 0
   mainCamera: {fileID: 1586074614}
 --- !u!1 &8654250720620241292
 GameObject:

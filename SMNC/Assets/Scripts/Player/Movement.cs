@@ -6,27 +6,36 @@ public class Movement : MonoBehaviour
 {
     [SerializeField] private float moveSpeed;
 
-    // This may need to become/already is a global variable.
+    // This may need to become/already is a global variable. REMEMBER GRAIVITY IS NEGATIVE PEOPLE. WE. DONT. FLY.
     [SerializeField] private float gravity; 
 
     // The force of the jump. (Should represent Unity units of height.)
     [SerializeField] private float jumpHeight; 
 
     // Duration of the jump, shorter means the player reaches max height faster.
-    [SerializeField] private float jumpDuration; 
 
     // Used for gravity and jumping.
-    [SerializeField] private Vector3 playerVerticalVelocity;     
+    private Vector3 playerVerticalVelocity;   
+
+    //floatingJumpModifier is the amount of velocity the player gains by letting go of space during their jump.
+    [SerializeField] private float floatingJumpModifier;  
     private CharacterController controller;
     private bool jump; // Whether the jump key has been pressed.
-    private float jumpDurationLeft;
+
     private Vector3 move;
+
+
+    //Hard falling is toggle on whether or not the player let go of space during their jump.
+    private bool hardFalling;
 
     // Start is called before the first frame update
     void Start()
     {
         controller = GetComponent<CharacterController>();
         move = Vector3.zero;
+        jump = false;
+        hardFalling = false;
+        playerVerticalVelocity.y = gravity * Time.deltaTime;
     }
 
     // Update is called once per frame
@@ -37,11 +46,14 @@ public class Movement : MonoBehaviour
              + Input.GetAxisRaw("Vertical") * transform.forward;
 
         // If space is pressed, jump.
-        if (Input.GetKeyDown(KeyCode.Space) && controller.isGrounded)
+        if (Input.GetButtonDown("Jump") && controller.isGrounded)
         {
             jump = true;
-            jumpDurationLeft = jumpDuration;
-        }     
+            hardFalling = false;
+        }
+
+        if (Input.GetButtonUp("Jump"))
+            hardFalling = true;
     }
 
     /*
@@ -55,8 +67,6 @@ public class Movement : MonoBehaviour
      */
     void FixedUpdate()
     {
-        playerVerticalVelocity.y = 0f;
-
         /* 
          * Jumping is handled by applying a constant velocity to the player for
          * a duration of time. This is to prevent the player from snapping to
@@ -65,20 +75,33 @@ public class Movement : MonoBehaviour
          * I THINK I have it so jump height represents the maximum number of Unity 
          * units the player will travel upwards, but don't quote this on that.
          */
-        if (jumpDurationLeft > 0)
-        {
-            playerVerticalVelocity.y += (jumpHeight/jumpDuration) + gravity;
-            jumpDurationLeft -= Time.deltaTime;
+        
 
-            if (jumpDurationLeft >= 0)
-                jump = false;
+        //if the player is jumping (duh)
+        if (jump)
+        {
+            jump = false;
+            playerVerticalVelocity.y = jumpHeight;
+        }
+        else if (!controller.isGrounded)
+        {
+            //In this else if is when the player is NOT jumping but is still in the air
+            if (hardFalling)
+                playerVerticalVelocity.y += (gravity * floatingJumpModifier) * Time.deltaTime;
+            else if (Input.GetButton("Jump"))
+                playerVerticalVelocity.y += gravity * Time.deltaTime;    
+        }
+        else 
+        {
+            //This else is when the player is not jumping and is grounded.
+            playerVerticalVelocity.y = gravity * Time.deltaTime;
         }
 
         move = move.normalized;
         controller.Move(move * moveSpeed * Time.deltaTime);
 
         // Add gravity to player's vertical velocity. 
-        playerVerticalVelocity.y -= gravity; 
+        //playerVerticalVelocity.y -= gravity; 
         controller.Move(playerVerticalVelocity * Time.deltaTime); 
     }
 }
