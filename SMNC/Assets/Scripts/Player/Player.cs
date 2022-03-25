@@ -15,6 +15,7 @@ namespace Player
             {
                 Move();
             }
+            position.Value = new Vector3(5.12f, 6f, 4.747f);
         }
         public void Move()
         {
