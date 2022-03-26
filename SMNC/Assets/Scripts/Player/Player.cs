@@ -11,35 +11,40 @@ namespace Player
 
         public override void OnNetworkSpawn()
         {
+            /*
             if (IsOwner)
             {
                 Move();
             }
+            */
             position.Value = new Vector3(5.12f, 6f, 4.747f);
         }
-        public void Move()
+        public void Move(Vector3 newPosition)
         {
             if (NetworkManager.Singleton.IsServer)
             {
-                var randomPosition = GetRandomPositionOnPlane();
+                var randomPosition = handleMovement(newPosition, position.Value);
                 transform.position = randomPosition;
                 position.Value = randomPosition;
             }
             else
             {
-                SubmitPositionRequestServerRpc();
+                if (IsOwner)
+                    SubmitPositionRequestServerRpc(newPosition);
             }
         }
 
         [ServerRpc]
-        void SubmitPositionRequestServerRpc(ServerRpcParams rpcParams = default)
+        void SubmitPositionRequestServerRpc(Vector3 newPosition, ServerRpcParams rpcParams = default)
         {
-            position.Value = GetRandomPositionOnPlane();
+            position.Value = handleMovement(newPosition, position.Value);
         }
 
-        static Vector3 GetRandomPositionOnPlane()
+        static Vector3 handleMovement(Vector3 newPosition, Vector3 oldPosition)
         {
-            return new Vector3(Random.Range(-3f, 3f), 1f, Random.Range(-3f, 3f));
+            newPosition *= 2.0f;
+            return oldPosition + newPosition;
+
         }
 
         void Update()

@@ -17,7 +17,6 @@ namespace Player
             else
             {
                 StatusLabels();
-                SubmitNewPosition();
             }
 
             GUILayout.EndArea();
@@ -38,6 +37,8 @@ namespace Player
                 GUILayout.Label("Mode: " + mode);
             }
 
+            /*
+
             static void SubmitNewPosition()
             {
                 if (GUILayout.Button(NetworkManager.Singleton.IsServer ? "Move" : "Request Position Change"))
@@ -55,5 +56,6 @@ namespace Player
                     }
                 }
             }
+            */
     }
 }
