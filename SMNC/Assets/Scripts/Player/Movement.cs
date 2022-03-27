@@ -6,6 +6,7 @@ using Unity.Netcode;
 public class Movement : NetworkBehaviour
 {
     private NetworkVariable<Vector3> networkPosition = new NetworkVariable<Vector3>();
+    public Camera HeadCamera;
     [SerializeField] private float moveSpeed;
 
     // This may need to become/already is a global variable. REMEMBER GRAIVITY IS NEGATIVE PEOPLE. WE. DONT. FLY.
@@ -52,37 +53,32 @@ public class Movement : NetworkBehaviour
             hardFalling = true;
             playerVerticalVelocity.y = gravity * Time.deltaTime;
         }
+
+        HeadCamera.GetComponent<Camera>().enabled = IsLocalPlayer;
+        HeadCamera.GetComponent<AudioListener>().enabled = IsLocalPlayer;
     }
 
-    
     void Update()
     {
-        if (!IsLocalPlayer)
-            return;
-        if (IsClient && IsOwner)
+        // Move the character relative to the direction they are facing.
+        move = Input.GetAxisRaw("Horizontal") * transform.right 
+            + Input.GetAxisRaw("Vertical") * transform.forward;
+
+        // If space is pressed, jump.
+        if (Input.GetButtonDown("Jump") && controller.isGrounded)
         {
-            // Move the character relative to the direction they are facing.
-            move = Input.GetAxisRaw("Horizontal") * transform.right 
-                + Input.GetAxisRaw("Vertical") * transform.forward;
-
-            // If space is pressed, jump.
-            if (Input.GetButtonDown("Jump") && controller.isGrounded)
-            {
-                jump = true;
-                hardFalling = false;
-            }
-
-            if (Input.GetButtonUp("Jump"))
-                hardFalling = true;
-            RequestMovementServerRpc(move);
-            transform.position = networkPosition.Value;
+            jump = true;
+            hardFalling = false;
         }
+
+        if (Input.GetButtonUp("Jump"))
+            hardFalling = true;
     }
 
     [ServerRpc]
-    public void RequestMovementServerRpc(Vector3 speed)
+    public void RequestMovementServerRpc(Vector3 pos)
     {
-        networkPosition.Value += speed;
+        networkPosition.Value = pos;
     }
 
     /*
@@ -94,51 +90,52 @@ public class Movement : NetworkBehaviour
     * diagonally as the do straight. Because pythagoras.
     *
     */
-    /*
+    
     void FixedUpdate()
     {
-        /* 
-        * Jumping is handled by applying a constant velocity to the player for
-        * a duration of time. This is to prevent the player from snapping to
-        * their max jump height, and makes it a bit more smooth. 
-        *
-        * I THINK I have it so jump height represents the maximum number of Unity 
-        * units the player will travel upwards, but don't quote this on that.
-        */
-
-
-        /*
-        
-
-        //if the player is jumping (duh)
-        if (jump)
+        if (!IsLocalPlayer)
+            transform.position = networkPosition.Value;
+        else
         {
-            jump = false;
-            playerVerticalVelocity.y = jumpHeight;
-        }
-        else if (!controller.isGrounded)
-        {
-            //In this else if is when the player is NOT jumping but is still in the air
-            if (hardFalling)
-                playerVerticalVelocity.y += (gravity * floatingJumpModifier) * Time.deltaTime;
-            else if (Input.GetButton("Jump"))
-                playerVerticalVelocity.y += gravity * Time.deltaTime;    
-        }
-        else 
-        {
-            //This else is when the player is not jumping and is grounded.
-            playerVerticalVelocity.y = gravity * Time.deltaTime;
-        }
-        Debug.Log(playerVerticalVelocity.y);
+            /* 
+            * Jumping is handled by applying a constant velocity to the player for
+            * a duration of time. This is to prevent the player from snapping to
+            * their max jump height, and makes it a bit more smooth. 
+            *
+            * I THINK I have it so jump height represents the maximum number of Unity 
+            * units the player will travel upwards, but don't quote this on that.
+            */
 
-        //move = move.normalized;
-        //controller.Move(move * moveSpeed * Time.deltaTime);
-        player.Move(move);
+            //if the player is jumping (duh)
+            if (jump)
+            {
+                jump = false;
+                playerVerticalVelocity.y = jumpHeight;
+            }
+            else if (!controller.isGrounded)
+            {
+                //In this else if is when the player is NOT jumping but is still in the air
+                if (hardFalling)
+                    playerVerticalVelocity.y += (gravity * floatingJumpModifier) * Time.deltaTime;
+                else if (Input.GetButton("Jump"))
+                    playerVerticalVelocity.y += gravity * Time.deltaTime;    
+            }
+            else 
+            {
+                //This else is when the player is not jumping and is grounded.
+                playerVerticalVelocity.y = gravity * Time.deltaTime;
+            }
+            
+            Debug.Log(playerVerticalVelocity.y);
 
+            move = move.normalized;
+            controller.Move(move * moveSpeed * Time.deltaTime);
 
-        // Add gravity to player's vertical velocity. 
-        //playerVerticalVelocity.y -= gravity;
-        controller.Move(playerVerticalVelocity * Time.deltaTime); 
+            // Add gravity to player's vertical velocity. 
+            //playerVerticalVelocity.y -= gravity;
+            controller.Move(playerVerticalVelocity * Time.deltaTime); 
+
+            RequestMovementServerRpc(transform.position);
+        }
     }
-    */
 }
