@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class ShootProjectile : MonoBehaviour
+public class ShootProjectile : NetworkBehaviour
 {
     // Start is called before the first frame update
     [SerializeField] private Projectile projectile;
@@ -20,15 +21,18 @@ public class ShootProjectile : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // If Mouse 1 is down (not ON down, while down.) shooting = true.
-        shooting = Input.GetButton("Fire1") ? true : false;
+        if (IsLocalPlayer)
+        {
+            // If Mouse 1 is down (not ON down, while down.) shooting = true.
+            shooting = Input.GetButton("Fire1") ? true : false;
+        }
     }
 
     void FixedUpdate()
     {
         /*
          * Make the location in front of the player and about halfway up the player.
-         * Thats wheere the projectile will spawn.
+         * Thats where the projectile will spawn.
          *
          * Uses the projectile class, which allows for custom projectiles.
          *
