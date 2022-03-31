@@ -10,10 +10,13 @@ public class ShootProjectile : NetworkBehaviour
     [SerializeField] private float distanceFromPlayer;
     [SerializeField] private Camera mainCamera;
 
+    private bool canShoot;
+
     private bool shooting;
 
     void Start()
     {
+        canShoot = true;
         shooting = false;
         distanceFromPlayer = 3.0f;
     }
@@ -39,11 +42,31 @@ public class ShootProjectile : NetworkBehaviour
          *
          */
 
-        if (shooting)
+        if (shooting && canShoot)
         {
-            Vector3 projectileSpawnLocation = mainCamera.transform.position + (mainCamera.transform.forward * distanceFromPlayer);
-            Instantiate(projectile, projectileSpawnLocation, mainCamera.transform.rotation);
+            if (IsLocalPlayer)
+            {
+                RequestProjectileSpawnServerRpc(mainCamera.transform.position, mainCamera.transform.forward, mainCamera.transform.rotation, distanceFromPlayer);
+                StartCoroutine(shootingDelay(0.2f));
+                //Vector3 projectileSpawnLocation = mainCamera.transform.position + (mainCamera.transform.forward * distanceFromPlayer);
+                //Instantiate(projectile, projectileSpawnLocation, mainCamera.transform.rotation);
+            }
         }
         
+    }
+
+    [ServerRpc]
+    public void RequestProjectileSpawnServerRpc(Vector3 pos, Vector3 forward, Quaternion rotation, float distance)
+    {
+        Vector3 projectileSpawnLocation = pos + (forward * distance);
+        Projectile p = Instantiate(projectile, projectileSpawnLocation, rotation);
+        p.gameObject.GetComponent<NetworkObject>().Spawn();
+    }
+
+    IEnumerator shootingDelay(float time)
+    {
+        canShoot = false;
+        yield return new WaitForSeconds(time);
+        canShoot = true;
     }
 }
