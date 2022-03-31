@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class Projectile : MonoBehaviour
+public class Projectile : NetworkBehaviour
 {
     // Start is called before the first frame update
     [SerializeField] private float projectileSpeed;
@@ -12,7 +13,20 @@ public class Projectile : MonoBehaviour
     {
         duration = 5.0f;
         projectileSpeed = 10.0f;
-        Destroy(gameObject, duration);
+        if (IsServer)
+            Destroy(gameObject, duration);
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("COLLISION");
+        if (IsServer)
+        {
+            //handle bullet collision
+            Destroy(gameObject);
+        }
+        else if (IsLocalPlayer)
+            gameObject.SetActive(false);
     }
 
     // Update is called once per frame
