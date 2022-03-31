@@ -36,9 +36,9 @@ public class Movement : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (IsServer)
-            networkPosition.Value = new Vector3(5f, 6f, 5f);
+        //networkPosition.Value = new Vector3(5f, 25f, 5f);
     }
+
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -125,7 +125,6 @@ public class Movement : NetworkBehaviour
                 //This else is when the player is not jumping and is grounded.
                 playerVerticalVelocity.y = gravity * Time.deltaTime;
             }
-        
 
             move = move.normalized;
             controller.Move(move * moveSpeed * Time.deltaTime);

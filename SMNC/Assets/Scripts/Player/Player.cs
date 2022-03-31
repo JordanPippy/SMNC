@@ -2,10 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using TMPro;
+using Unity.Collections;
 
 public class Player : NetworkBehaviour
 {
-    public NetworkVariable<Vector3> position = new NetworkVariable<Vector3>();
+    public GameObject nameTagObj;
+    public bool nameSet = false;
+    public NetworkVariable<FixedString32Bytes> playerNameNetwork = new NetworkVariable<FixedString32Bytes>();
 
     public override void OnNetworkSpawn()
     {
@@ -15,8 +19,33 @@ public class Player : NetworkBehaviour
             Move();
         }
         */
-        position.Value = new Vector3(5.12f, 6f, 4.747f);
+        if (IsLocalPlayer)
+        {
+            gameObject.name = "LocalPlayer";
+            nameTagObj.SetActive(false);
+            nameTagObj.GetComponent<TextMeshProUGUI>().SetText(GameObject.Find("NetworkManager").GetComponent<NetworkGUI>().playerName);
+            RequestPlayerNameServerRpc(GameObject.Find("NetworkManager").GetComponent<NetworkGUI>().playerName);
+        }
+        else
+        {
+            nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork.Value.ToString());
+        }
     }
+
+    [ServerRpc]
+    public void RequestPlayerNameServerRpc(FixedString32Bytes nam)
+    {
+        playerNameNetwork.Value = nam;
+    }
+
+    void Update()
+    {
+        if (!IsLocalPlayer && !nameSet)
+        {
+            nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork.Value.ToString());
+        }
+    }
+
     /*
     public void Move(Vector3 newPosition)
     {

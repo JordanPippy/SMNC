@@ -5,12 +5,18 @@ using Unity.Netcode;
 
 public class NetworkGUI : MonoBehaviour
 {
+    public string playerName;
+
     void OnGUI()
     {
         GUILayout.BeginArea(new Rect(10, 10, 300, 300));
         if (!NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
         {
             StartButtons();
+            GUILayout.Label("Name: ");
+            playerName = GUILayout.TextField(playerName, 25);
+            GUILayout.Label("IP Address: ");
+            GetComponent<Unity.Netcode.Transports.UNET.UNetTransport>().ConnectAddress = GUILayout.TextField(GetComponent<Unity.Netcode.Transports.UNET.UNetTransport>().ConnectAddress, 25);
         }
         else
         {
