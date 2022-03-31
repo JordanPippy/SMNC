@@ -14,7 +14,7 @@ public class NetworkGUI : MonoBehaviour
         {
             StartButtons();
             GUILayout.Label("Name: ");
-            playerName = GUILayout.TextField(playerName, 25);
+            playerName = GUILayout.TextField(playerName, 32);
             GUILayout.Label("IP Address: ");
             GetComponent<Unity.Netcode.Transports.UNET.UNetTransport>().ConnectAddress = GUILayout.TextField(GetComponent<Unity.Netcode.Transports.UNET.UNetTransport>().ConnectAddress, 25);
         }

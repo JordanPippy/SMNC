@@ -42,7 +42,11 @@ public class Player : NetworkBehaviour
     {
         if (!IsLocalPlayer && !nameSet)
         {
-            nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork.Value.ToString());
+            if (playerNameNetwork.Value.ToString() != "")
+            {
+                nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork.Value.ToString());
+                nameSet = true;
+            }
         }
     }
 
