@@ -125,8 +125,7 @@ public class Movement : NetworkBehaviour
                 //This else is when the player is not jumping and is grounded.
                 playerVerticalVelocity.y = gravity * Time.deltaTime;
             }
-            
-            Debug.Log(playerVerticalVelocity.y);
+        
 
             move = move.normalized;
             controller.Move(move * moveSpeed * Time.deltaTime);
