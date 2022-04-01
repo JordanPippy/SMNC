@@ -127,12 +127,15 @@ public class Movement : NetworkBehaviour
             }
 
             move = move.normalized;
-            controller.Move(move * moveSpeed * Time.deltaTime);
 
             // Add gravity to player's vertical velocity. 
             //playerVerticalVelocity.y -= gravity;
-            controller.Move(playerVerticalVelocity * Time.deltaTime); 
 
+            /*controller fnc can be split into 2 fncs (move*moveSpeed) and playerVerticalVelocity both 
+             *individually multiplied by deltaTime
+             */
+            controller.Move(((move * moveSpeed)+playerVerticalVelocity) * Time.deltaTime);
+            
             RequestMovementServerRpc(transform.position);
         }
     }
