@@ -8,23 +8,17 @@ using Unity.Collections;
 public class Player : NetworkBehaviour
 {
     public GameObject nameTagObj;
-    public bool nameSet = false;
+    private bool nameSet = false; // Keep attempting to set the text of the nametag until set.
     public NetworkVariable<FixedString32Bytes> playerNameNetwork = new NetworkVariable<FixedString32Bytes>();
 
     public override void OnNetworkSpawn()
     {
-        /*
-        if (IsOwner)
-        {
-            Move();
-        }
-        */
         if (IsLocalPlayer)
         {
-            gameObject.name = "LocalPlayer";
-            nameTagObj.SetActive(false);
-            nameTagObj.GetComponent<TextMeshProUGUI>().SetText(GameObject.Find("NetworkManager").GetComponent<NetworkGUI>().playerName);
-            RequestPlayerNameServerRpc(GameObject.Find("NetworkManager").GetComponent<NetworkGUI>().playerName);
+            string playerName = GameObject.Find("NetworkManager").GetComponent<NetworkGUI>().playerName; // Get playername from the network manager GUI.
+            gameObject.name = "LocalPlayer"; // Set the clients personal gameobject's name.
+            nameTagObj.SetActive(false); // Disable the clients nametag on their end.
+            RequestPlayerNameServerRpc(playerName);
         }
         else
         {
@@ -49,39 +43,4 @@ public class Player : NetworkBehaviour
             }
         }
     }
-
-    /*
-    public void Move(Vector3 newPosition)
-    {
-        if (NetworkManager.Singleton.IsServer)
-        {
-            var randomPosition = handleMovement(newPosition, position.Value);
-            transform.position = randomPosition;
-            position.Value = randomPosition;
-        }
-        else
-        {
-            SubmitPositionRequestServerRpc(newPosition);
-        }
-    }
-
-    [ServerRpc]
-    void SubmitPositionRequestServerRpc(Vector3 newPosition, ServerRpcParams rpcParams = default)
-    {
-        position.Value = handleMovement(newPosition, position.Value);
-        transform.position = position.Value;
-    }
-
-    static Vector3 handleMovement(Vector3 newPosition, Vector3 oldPosition)
-    {
-        newPosition *= 2.0f;
-        return oldPosition + newPosition;
-
-    }
-
-    void Update()
-    {
-        transform.position = position.Value;
-    }
-    */
 }

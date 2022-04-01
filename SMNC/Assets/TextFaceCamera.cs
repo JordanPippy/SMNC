@@ -11,7 +11,6 @@ public class TextFaceCamera : MonoBehaviour
     }
     void Update()
     {
-        Vector3 newRotation = localPlayer.transform.position; // To flip the text towards the camera.
-        transform.LookAt(newRotation);
+        transform.LookAt(localPlayer.transform.position);
     }
 }

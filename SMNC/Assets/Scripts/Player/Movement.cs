@@ -9,7 +9,7 @@ public class Movement : NetworkBehaviour
     public Camera HeadCamera;
     [SerializeField] private float moveSpeed;
 
-    // This may need to become/already is a global variable. REMEMBER GRAIVITY IS NEGATIVE PEOPLE. WE. DONT. FLY.
+    // This may need to become/already is a global variable. REMEMBER GRAVITY IS NEGATIVE PEOPLE. WE. DONT. FLY.
     [SerializeField] private float gravity; 
 
     // The force of the jump. (Should represent Unity units of height.)
