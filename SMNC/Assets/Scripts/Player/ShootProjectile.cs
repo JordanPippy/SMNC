@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Netcode;
+using Mirror;
 
 public class ShootProjectile : NetworkBehaviour
 {
@@ -24,7 +24,7 @@ public class ShootProjectile : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (IsLocalPlayer)
+        if (isLocalPlayer)
         {
             // If Mouse 1 is down (not ON down, while down.) shooting = true.
             shooting = Input.GetButton("Fire1") ? true : false;
@@ -44,9 +44,9 @@ public class ShootProjectile : NetworkBehaviour
 
         if (shooting && canShoot)
         {
-            if (IsLocalPlayer)
+            if (isLocalPlayer)
             {
-                RequestProjectileSpawnServerRpc(mainCamera.transform.position, mainCamera.transform.forward, mainCamera.transform.rotation, distanceFromPlayer);
+                //RequestProjectileSpawnServerRpc(mainCamera.transform.position, mainCamera.transform.forward, mainCamera.transform.rotation, distanceFromPlayer);
                 StartCoroutine(shootingDelay(0.2f));
                 //Vector3 projectileSpawnLocation = mainCamera.transform.position + (mainCamera.transform.forward * distanceFromPlayer);
                 //Instantiate(projectile, projectileSpawnLocation, mainCamera.transform.rotation);
@@ -54,6 +54,7 @@ public class ShootProjectile : NetworkBehaviour
         }
         
     }
+    /*
 
     [ServerRpc]
     public void RequestProjectileSpawnServerRpc(Vector3 pos, Vector3 forward, Quaternion rotation, float distance)
@@ -62,6 +63,7 @@ public class ShootProjectile : NetworkBehaviour
         Projectile p = Instantiate(projectile, projectileSpawnLocation, rotation);
         p.gameObject.GetComponent<NetworkObject>().Spawn();
     }
+    */
 
     IEnumerator shootingDelay(float time)
     {

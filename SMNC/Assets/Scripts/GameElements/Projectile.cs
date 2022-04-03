@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Netcode;
+using Mirror;
 
 public class Projectile : NetworkBehaviour
 {
@@ -13,19 +13,19 @@ public class Projectile : NetworkBehaviour
     {
         duration = 5.0f;
         projectileSpeed = 10.0f;
-        if (IsServer)
+        if (isServer)
             Destroy(gameObject, duration);
     }
 
     void OnTriggerEnter(Collider other)
     {
         Debug.Log("COLLISION");
-        if (IsServer)
+        if (isServer)
         {
             //handle bullet collision
             Destroy(gameObject);
         }
-        else if (IsLocalPlayer)
+        else if (isLocalPlayer)
             gameObject.SetActive(false);
     }
 

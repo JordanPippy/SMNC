@@ -1,11 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Netcode;
+using Mirror;
 
 public class Movement : NetworkBehaviour
 {
-    private NetworkVariable<Vector3> networkPosition = new NetworkVariable<Vector3>();
     public Camera HeadCamera;
     [SerializeField] private float moveSpeed;
 
@@ -34,11 +33,6 @@ public class Movement : NetworkBehaviour
     private Player player;
 
 
-    public override void OnNetworkSpawn()
-    {
-        //networkPosition.Value = new Vector3(5f, 25f, 5f);
-    }
-
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -46,20 +40,19 @@ public class Movement : NetworkBehaviour
     
     void Start()
     {
-        if (IsClient && IsOwner)
-        {
-            move = Vector3.zero;
-            jump = false;
-            hardFalling = true;
-            playerVerticalVelocity.y = gravity * Time.deltaTime;
-        }
+        move = Vector3.zero;
+        jump = false;
+        hardFalling = true;
+        playerVerticalVelocity.y = gravity * Time.deltaTime;
 
-        HeadCamera.GetComponent<Camera>().enabled = IsLocalPlayer;
-        HeadCamera.GetComponent<AudioListener>().enabled = IsLocalPlayer;
+        HeadCamera.GetComponent<Camera>().enabled = isLocalPlayer;
+        HeadCamera.GetComponent<AudioListener>().enabled = isLocalPlayer;
     }
 
     void Update()
     {
+        if (!isLocalPlayer)
+            return;
         // Move the character relative to the direction they are facing.
         move = Input.GetAxisRaw("Horizontal") * transform.right 
             + Input.GetAxisRaw("Vertical") * transform.forward;
@@ -75,11 +68,6 @@ public class Movement : NetworkBehaviour
             hardFalling = true;
     }
 
-    [ServerRpc]
-    public void RequestMovementServerRpc(Vector3 pos)
-    {
-        networkPosition.Value = pos;
-    }
 
     /*
     * FixedUpdate is where movement/physics based operations should take place.
@@ -93,8 +81,8 @@ public class Movement : NetworkBehaviour
     
     void FixedUpdate()
     {
-        if (!IsLocalPlayer)
-            transform.position = networkPosition.Value;
+        if (!isLocalPlayer)
+            return;
         else
         {
             /* 
@@ -136,7 +124,6 @@ public class Movement : NetworkBehaviour
              */
             controller.Move(((move * moveSpeed)+playerVerticalVelocity) * Time.deltaTime);
             
-            RequestMovementServerRpc(transform.position);
         }
     }
 }
