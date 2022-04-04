@@ -22,15 +22,13 @@ public class Movement : NetworkBehaviour
     //floatingJumpModifier is the amount of velocity the player gains by letting go of space during their jump.
     [SerializeField] private float floatingJumpModifier;  
     private CharacterController controller;
-    private bool jump; // Whether the jump key has been pressed.
-
-    private Vector3 move;
-
-
-    //Hard falling is toggle on whether or not the player let go of space during their jump.
-    private bool hardFalling;
     public float horizontal, vertical;
     private Player player;
+
+    [SyncVar] private Vector3 networkPosition;
+    private InputData clientInput;
+    
+    public bool jumpRegistered;
 
 
     private void Awake()
@@ -40,10 +38,7 @@ public class Movement : NetworkBehaviour
     
     void Start()
     {
-        move = Vector3.zero;
-        jump = false;
-        hardFalling = true;
-        playerVerticalVelocity.y = gravity * Time.deltaTime;
+        clientInput = new InputData(Vector3.zero, false, true);
 
         HeadCamera.GetComponent<Camera>().enabled = isLocalPlayer;
         HeadCamera.GetComponent<AudioListener>().enabled = isLocalPlayer;
@@ -53,21 +48,22 @@ public class Movement : NetworkBehaviour
     {
         if (!isLocalPlayer)
             return;
+
         // Move the character relative to the direction they are facing.
-        move = Input.GetAxisRaw("Horizontal") * transform.right 
+        clientInput.moveDirection = Input.GetAxisRaw("Horizontal") * transform.right 
             + Input.GetAxisRaw("Vertical") * transform.forward;
 
         // If space is pressed, jump.
         if (Input.GetButtonDown("Jump") && controller.isGrounded)
         {
-            jump = true;
-            hardFalling = false;
+            clientInput.jump = true;
+            jumpRegistered = false;
+            clientInput.hardFalling = false;
         }
 
         if (Input.GetButtonUp("Jump"))
-            hardFalling = true;
+            clientInput.hardFalling = true;
     }
-
 
     /*
     * FixedUpdate is where movement/physics based operations should take place.
@@ -82,48 +78,100 @@ public class Movement : NetworkBehaviour
     void FixedUpdate()
     {
         if (!isLocalPlayer)
-            return;
+            transform.position = networkPosition;
         else
         {
-            /* 
-            * Jumping is handled by applying a constant velocity to the player for
-            * a duration of time. This is to prevent the player from snapping to
-            * their max jump height, and makes it a bit more smooth. 
-            *
-            * I THINK I have it so jump height represents the maximum number of Unity 
-            * units the player will travel upwards, but don't quote this on that.
-            */
+            InputData initialData = clientInput;
+            MovementCalculation();
 
-            //if the player is jumping (duh)
-            if (jump)
-            {
-                jump = false;
-                playerVerticalVelocity.y = jumpHeight;
-            }
-            else if (!controller.isGrounded)
-            {
-                //In this else if is when the player is NOT jumping but is still in the air
-                if (hardFalling)
-                    playerVerticalVelocity.y += (gravity * floatingJumpModifier) * Time.deltaTime;
-                else if (Input.GetButton("Jump"))
-                    playerVerticalVelocity.y += gravity * Time.deltaTime;    
-            }
-            else 
-            {
-                //This else is when the player is not jumping and is grounded.
-                playerVerticalVelocity.y = gravity * Time.deltaTime;
-            }
-
-            move = move.normalized;
-
-            // Add gravity to player's vertical velocity. 
-            //playerVerticalVelocity.y -= gravity;
-
-            /*controller fnc can be split into 2 fncs (move*moveSpeed) and playerVerticalVelocity both 
-             *individually multiplied by deltaTime
-             */
-            controller.Move(((move * moveSpeed)+playerVerticalVelocity) * Time.deltaTime);
-            
+            if (!isServer)
+                UpdateNetworkPos(initialData);
+            else
+                networkPosition = transform.position;
         }
     }
+
+    [Command]
+    void UpdateNetworkPos(InputData inputs)
+    {
+        clientInput = inputs;
+        MovementCalculation();
+        networkPosition = transform.position;
+
+        if (Vector3.Distance(ReportClientPos(), networkPosition) >= 1.0f)
+        {
+            ForceMoveClient(networkPosition);
+        }
+    }
+
+    [ClientRpc]
+    void ForceMoveClient(Vector3 pos)
+    {
+        print("Force moved client to " + pos);
+        transform.position = pos;
+    }
+
+    [ClientCallback]
+    Vector3 ReportClientPos()
+    {
+        return transform.position;
+    }
+
+    void MovementCalculation()
+    {
+        /* 
+        * Jumping is handled by applying a constant velocity to the player for
+        * a duration of time. This is to prevent the player from snapping to
+        * their max jump height, and makes it a bit more smooth. 
+        *
+        * I THINK I have it so jump height represents the maximum number of Unity 
+        * units the player will travel upwards, but don't quote this on that.
+        */
+
+        //if the player is jumping (duh)
+        if (clientInput.jump)
+        {
+            clientInput.jump = false;
+            playerVerticalVelocity.y = jumpHeight;
+        }
+        else if (!controller.isGrounded)
+        {
+            //In this else if is when the player is NOT jumping but is still in the air
+            if (clientInput.hardFalling)
+                playerVerticalVelocity.y += (gravity * floatingJumpModifier) * Time.deltaTime;
+            else
+                playerVerticalVelocity.y += gravity * Time.deltaTime;    
+        }
+        else 
+        {
+            //This else is when the player is not jumping and is grounded.
+            playerVerticalVelocity.y = gravity * Time.deltaTime;
+        }
+
+        clientInput.moveDirection = clientInput.moveDirection.normalized;
+
+        // Add gravity to player's vertical velocity. 
+        //playerVerticalVelocity.y -= gravity;
+
+        /*controller fnc can be split into 2 fncs (move*moveSpeed) and playerVerticalVelocity both 
+            *individually multiplied by deltaTime
+            */
+
+        controller.Move(((clientInput.moveDirection * moveSpeed)+playerVerticalVelocity) * Time.deltaTime);
+    }
 }
+
+struct InputData 
+{
+    public Vector3 moveDirection;
+    public bool jump; // Whether the jump key has been pressed.
+    public bool hardFalling; //Hard falling is toggle on whether or not the player let go of space during their jump.
+
+    public InputData(Vector3 moveDirection, bool jump, bool hardFalling)
+    {
+        this.moveDirection = moveDirection;
+        this.jump = jump;
+        this.hardFalling = hardFalling;
+    }
+}
+
