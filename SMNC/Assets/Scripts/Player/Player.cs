@@ -8,36 +8,39 @@ using Unity.Collections;
 public class Player : NetworkBehaviour
 {
     public GameObject nameTagObj;
-    private bool nameSet = false; // Keep attempting to set the text of the nametag until set.
+    public bool nameSet = false; // Keep attempting to set the text of the nametag until set.
+    [SyncVar] public string playerNameNetwork;
 
-/*
-    public override void OnNetworkSpawn()
+    void Start()
     {
-        if (IsLocalPlayer)
+        if (isLocalPlayer)
         {
-            string playerName = GameObject.Find("NetworkManager").GetComponent<NetworkGUI>().playerName; // Get playername from the network manager GUI.
+            string playerName = GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().playerName; // Get playername from the network manager GUI.
             gameObject.name = "LocalPlayer"; // Set the clients personal gameobject's name.
             nameTagObj.SetActive(false); // Disable the clients nametag on their end.
-            RequestPlayerNameServerRpc(playerName);
+            UpdatePlayerName(playerName);
         }
         else
         {
-            nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork.Value.ToString());
+            nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork);
         }
     }
-    */
 
     void Update()
     {
         if (!isLocalPlayer && !nameSet)
         {
-            /*
-            if (playerNameNetwork.Value.ToString() != "")
+            if (playerNameNetwork != "")
             {
-                nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork.Value.ToString());
+                nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork);
                 nameSet = true;
             }
-            */
         }
+    }
+
+    [Command]
+    void UpdatePlayerName(string nam)
+    {
+        playerNameNetwork = nam;
     }
 }
