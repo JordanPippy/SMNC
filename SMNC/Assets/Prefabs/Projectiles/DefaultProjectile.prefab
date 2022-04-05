@@ -13,11 +13,11 @@ GameObject:
   - component: {fileID: 1449078804327026211}
   - component: {fileID: 8652707452863602820}
   - component: {fileID: 2010415504639872752}
-  - component: {fileID: -2003412332656441660}
   - component: {fileID: 1493377622844018354}
+  - component: {fileID: 3472620881753072695}
   m_Layer: 0
   m_Name: DefaultProjectile
-  m_TagString: Untagged
+  m_TagString: Projectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -110,24 +110,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82954dd6e54a049418bb4ecc795a392a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
   projectileSpeed: 0
   duration: 0
---- !u!114 &-2003412332656441660
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6845746136635358135}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 951099334
-  AlwaysReplicateAsRoot: 0
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
 --- !u!54 &1493377622844018354
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -144,3 +130,20 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &3472620881753072695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6845746136635358135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  serverOnly: 0
+  visible: 0
+  m_AssetId: 204f350af7fd5904e838569061554b45
+  hasSpawned: 0

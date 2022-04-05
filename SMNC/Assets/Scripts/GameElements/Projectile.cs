@@ -13,20 +13,22 @@ public class Projectile : NetworkBehaviour
     {
         duration = 5.0f;
         projectileSpeed = 10.0f;
-        if (isServer)
-            Destroy(gameObject, duration);
+        Destroy(gameObject, 2.0f);
     }
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("COLLISION");
+        if (other.gameObject.CompareTag("Projectile"))
+            return;
+        Debug.Log("COLLISION ");
         if (isServer)
         {
             //handle bullet collision
             Destroy(gameObject);
         }
-        else if (isLocalPlayer)
-            gameObject.SetActive(false);
+        else
+            Destroy(gameObject);
+            //gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -39,5 +41,11 @@ public class Projectile : NetworkBehaviour
     {
         //move forward, quaternion set in ShootProjectile.cs.
         transform.Translate(Vector3.forward * projectileSpeed * Time.deltaTime);
+    }
+
+    IEnumerator DestroyInSeconds(float time)
+    {
+        yield return new WaitForSeconds(time);
+        NetworkServer.Destroy(gameObject);
     }
 }

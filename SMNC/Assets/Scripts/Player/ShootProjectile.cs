@@ -6,7 +6,7 @@ using Mirror;
 public class ShootProjectile : NetworkBehaviour
 {
     // Start is called before the first frame update
-    [SerializeField] private Projectile projectile;
+    [SerializeField] private GameObject projectile;
     [SerializeField] private float distanceFromPlayer;
     [SerializeField] private Camera mainCamera;
 
@@ -46,7 +46,7 @@ public class ShootProjectile : NetworkBehaviour
         {
             if (isLocalPlayer)
             {
-                //RequestProjectileSpawnServerRpc(mainCamera.transform.position, mainCamera.transform.forward, mainCamera.transform.rotation, distanceFromPlayer);
+                RequestProjectileSpawnServerRpc(mainCamera.transform.position, mainCamera.transform.forward, mainCamera.transform.rotation, distanceFromPlayer);
                 StartCoroutine(shootingDelay(0.2f));
                 //Vector3 projectileSpawnLocation = mainCamera.transform.position + (mainCamera.transform.forward * distanceFromPlayer);
                 //Instantiate(projectile, projectileSpawnLocation, mainCamera.transform.rotation);
@@ -54,16 +54,24 @@ public class ShootProjectile : NetworkBehaviour
         }
         
     }
-    /*
+    
 
-    [ServerRpc]
-    public void RequestProjectileSpawnServerRpc(Vector3 pos, Vector3 forward, Quaternion rotation, float distance)
+    [Command]
+    void RequestProjectileSpawnServerRpc(Vector3 pos, Vector3 forward, Quaternion rotation, float distance)
     {
         Vector3 projectileSpawnLocation = pos + (forward * distance);
-        Projectile p = Instantiate(projectile, projectileSpawnLocation, rotation);
-        p.gameObject.GetComponent<NetworkObject>().Spawn();
+        GameObject p = Instantiate(projectile, projectileSpawnLocation, rotation);
+        NetworkServer.Spawn(p);
+        p.GetComponent<MeshRenderer>().enabled = false;
+        SpawnProjectileLocallyClientRpc(projectileSpawnLocation, rotation);
     }
-    */
+
+    [ClientRpc]
+    void SpawnProjectileLocallyClientRpc(Vector3 location, Quaternion rotation)
+    {
+        Instantiate(projectile, location, rotation);
+    }
+    
 
     IEnumerator shootingDelay(float time)
     {
