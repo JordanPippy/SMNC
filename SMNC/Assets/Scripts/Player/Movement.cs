@@ -6,13 +6,13 @@ using Mirror;
 public class Movement : NetworkBehaviour
 {
     public Camera HeadCamera;
-    [SerializeField] private float moveSpeed;
+    [SyncVar] private float moveSpeed = 5.0f;
 
     // This may need to become/already is a global variable. REMEMBER GRAVITY IS NEGATIVE PEOPLE. WE. DONT. FLY.
-    [SerializeField] private float gravity; 
+    [SyncVar] private float gravity = -9.81f; 
 
     // The force of the jump. (Should represent Unity units of height.)
-    [SerializeField] private float jumpHeight; 
+    [SyncVar] private float jumpHeight = 5.0f; 
 
     // Duration of the jump, shorter means the player reaches max height faster.
 
@@ -20,7 +20,7 @@ public class Movement : NetworkBehaviour
     private Vector3 playerVerticalVelocity;   
 
     //floatingJumpModifier is the amount of velocity the player gains by letting go of space during their jump.
-    [SerializeField] private float floatingJumpModifier;  
+    [SyncVar] private float floatingJumpModifier = 1.5f;  
     private CharacterController controller;
     public float horizontal, vertical;
     private Player player;
@@ -38,6 +38,11 @@ public class Movement : NetworkBehaviour
     
     void Start()
     {
+        if (isLocalPlayer)
+        {
+            GetComponent<NetworkTransform>().interpolatePosition = false;
+            GetComponent<NetworkTransform>().interpolateRotation = false;
+        }
         clientInput = new InputData(Vector3.zero, false, true);
 
         HeadCamera.GetComponent<Camera>().enabled = isLocalPlayer;
@@ -46,9 +51,11 @@ public class Movement : NetworkBehaviour
 
     void Update()
     {
+
         if (!isLocalPlayer)
             return;
-
+        //moveSpeed += 0.1f;
+        //Debug.Log("Client gravity: " + moveSpeed);
         // Move the character relative to the direction they are facing.
         clientInput.moveDirection = Input.GetAxisRaw("Horizontal") * transform.right 
             + Input.GetAxisRaw("Vertical") * transform.forward;
@@ -78,37 +85,37 @@ public class Movement : NetworkBehaviour
     void FixedUpdate()
     {
         if (!isLocalPlayer)
-            transform.position = networkPosition;
-        else
-        {
-            InputData initialData = clientInput;
-            MovementCalculation();
-
-            if (!isServer)
-                UpdateNetworkPos(initialData);
-            else
-                networkPosition = transform.position;
-        }
+            return;
+        InputData initialData = clientInput;
+        MovementCalculation();
+        UpdateNetworkPos(initialData, moveSpeed);
     }
 
     [Command]
-    void UpdateNetworkPos(InputData inputs)
+    void UpdateNetworkPos(InputData inputs, float clientSpeed)
     {
-        clientInput = inputs;
-        MovementCalculation();
-        networkPosition = transform.position;
-
-        if (Vector3.Distance(ReportClientPos(), networkPosition) >= 1.0f)
+        //clientInput = inputs;
+        //MovementCalculation();
+        float acceptableDifference = 2.0f;
+        Debug.Log("Client pos: " + ReportClientPos() + " Server pos: " + networkPosition + " Difference: " + Vector3.Distance(ReportClientPos(), networkPosition));
+        Debug.Log("Client movespeed: " + clientSpeed);
+        if (Vector3.Distance(ReportClientPos(), networkPosition) >= acceptableDifference || clientSpeed != moveSpeed)
         {
-            ForceMoveClient(networkPosition);
+            Debug.Log("Detected cheating!");
+            ForceMoveClient(new Vector3(0, 0, 0));
+            networkPosition = new Vector3(0, 0, 0);
         }
+        else
+            networkPosition = transform.position;
     }
 
     [ClientRpc]
     void ForceMoveClient(Vector3 pos)
     {
         print("Force moved client to " + pos);
+        controller.enabled = false;
         transform.position = pos;
+        StartCoroutine(EnableControllerDelay(0.5f));
     }
 
     [ClientCallback]
@@ -127,7 +134,6 @@ public class Movement : NetworkBehaviour
         * I THINK I have it so jump height represents the maximum number of Unity 
         * units the player will travel upwards, but don't quote this on that.
         */
-
         //if the player is jumping (duh)
         if (clientInput.jump)
         {
@@ -156,8 +162,13 @@ public class Movement : NetworkBehaviour
         /*controller fnc can be split into 2 fncs (move*moveSpeed) and playerVerticalVelocity both 
             *individually multiplied by deltaTime
             */
+        controller.Move(((clientInput.moveDirection * moveSpeed)+playerVerticalVelocity) * Time.deltaTime);   
+    }
 
-        controller.Move(((clientInput.moveDirection * moveSpeed)+playerVerticalVelocity) * Time.deltaTime);
+    IEnumerator EnableControllerDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        controller.enabled = true;
     }
 }
 
