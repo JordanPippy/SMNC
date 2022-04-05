@@ -362,6 +362,8 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   nameTagObj: {fileID: 4802685804793838506}
+  nameSet: 0
+  playerNameNetwork: 
 --- !u!114 &1341460666444318552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,7 +379,6 @@ MonoBehaviour:
   syncMode: 1
   syncInterval: 0
   HeadCamera: {fileID: 8909587314293142741}
-  gravity: -9.81
   horizontal: 0
   vertical: 0
   jumpRegistered: 0
@@ -670,7 +671,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7914008058409514983
 RectTransform:
   m_ObjectHideFlags: 0

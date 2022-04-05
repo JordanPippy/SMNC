@@ -9,9 +9,12 @@ namespace Mirror
     [AddComponentMenu("Network/Network Manager HUD")]
     [RequireComponent(typeof(NetworkManager))]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-manager-hud")]
+
     public class NetworkManagerHUD : MonoBehaviour
     {
         NetworkManager manager;
+        
+        public string playerName;
 
         public int offsetX;
         public int offsetY;
@@ -72,6 +75,11 @@ namespace Mirror
                 }
                 // This updates networkAddress every frame from the TextField
                 manager.networkAddress = GUILayout.TextField(manager.networkAddress);
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Player Name: ");
+                playerName = GUILayout.TextField(playerName, 32);
                 GUILayout.EndHorizontal();
 
                 // Server Only

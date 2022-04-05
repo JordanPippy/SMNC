@@ -4,13 +4,20 @@ using UnityEngine;
 
 public class TextFaceCamera : MonoBehaviour
 {
-    private Transform localPlayer;
+    private GameObject localPlayer;
     void Start()
     {
-        localPlayer = GameObject.Find("LocalPlayer").transform;
+        
     }
     void Update()
     {
-        transform.LookAt(localPlayer.transform.position);
+        if (localPlayer != null)
+        {
+            transform.LookAt(localPlayer.transform.position);
+        }  
+        else
+        {
+            localPlayer = GameObject.Find("LocalPlayer");
+        }
     }
 }
