@@ -97,8 +97,6 @@ public class Movement : NetworkBehaviour
         //clientInput = inputs;
         //MovementCalculation();
         float acceptableDifference = 2.0f;
-        Debug.Log("Client pos: " + ReportClientPos() + " Server pos: " + networkPosition + " Difference: " + Vector3.Distance(ReportClientPos(), networkPosition));
-        Debug.Log("Client movespeed: " + clientSpeed);
         if (Vector3.Distance(ReportClientPos(), networkPosition) >= acceptableDifference || clientSpeed != moveSpeed)
         {
             Debug.Log("Detected cheating!");
