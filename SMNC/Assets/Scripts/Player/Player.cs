@@ -11,8 +11,8 @@ public class Player : NetworkBehaviour
     public GameObject nameTagObj;
     public bool nameSet = false; // Keep attempting to set the text of the nametag until set.
     public HealthBar healthBar;
+    public SkinnedMeshRenderer mesh;
     [SyncVar] public string playerNameNetwork;
-
     [SyncVar] public int maxHealth = 100;
     [SyncVar] public int currentHealth;
 
@@ -23,6 +23,7 @@ public class Player : NetworkBehaviour
             string playerName = GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().playerName; // Get playername from the network manager GUI.
             gameObject.name = "LocalPlayer"; // Set the clients personal gameobject's name.
             nameTagObj.SetActive(false); // Disable the clients nametag on their end.
+            mesh.enabled = false; // The client does not need to see their own body.
             UpdatePlayerName(playerName);
         }
         else
