@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,6 +16,10 @@ public class Player : NetworkBehaviour
     [SyncVar] public string playerNameNetwork;
     [SyncVar] public int maxHealth = 100;
     [SyncVar] public int currentHealth;
+    [SyncVar] public double curRtt;
+    public float pingUpdateFrequency = 2.0f;
+    public float lastRttTime;
+    public float offsetX, offsetY;
 
     void Start()
     {
@@ -24,6 +29,7 @@ public class Player : NetworkBehaviour
             gameObject.name = "LocalPlayer"; // Set the clients personal gameobject's name.
             nameTagObj.SetActive(false); // Disable the clients nametag on their end.
             mesh.enabled = false; // The client does not need to see their own body.
+            lastRttTime = Time.time; // Begin the timer for the Rtt updates.
             UpdatePlayerName(playerName);
         }
         else
@@ -57,9 +63,14 @@ public class Player : NetworkBehaviour
         }
 
         if (isLocalPlayer)
+        {
             UpdateClient();
+            UpdateRtt();
+        }
         if (isServer)
             UpdateServer();
+        
+        
     }
 
     void UpdateClient()
@@ -83,6 +94,23 @@ public class Player : NetworkBehaviour
     void UpdatePlayerName(string nam)
     {
         playerNameNetwork = nam;
+    }
+
+    // The following is used to control how often the rtt is updated.
+    void UpdateRtt()
+    {
+        // Minimize the amount of messages sent to the server.
+        if (Time.time - lastRttTime >= pingUpdateFrequency)
+        {
+            lastRttTime = Time.time;
+            UpdateNetworkRTT(NetworkTime.rtt);
+        }
+    }
+
+    [Command]
+    void UpdateNetworkRTT(double rtt)
+    {
+        curRtt = rtt;
     }
 
     [Command]
