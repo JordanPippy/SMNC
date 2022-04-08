@@ -68,15 +68,34 @@ public class Player : NetworkBehaviour
         {
             Debug.Log("Before jump current Health: " + currentHealth);
             RequestTakeDamage(20);
-            //healthBar.SetHealth(currentHealth);
-            healthBar.changeHealth(-20);
             Debug.Log("After jump current Health: " + currentHealth);
         }
     }
 
+    void Die()
+    {
+        GetComponent<Movement>().ForceMoveClient(new Vector3(0, 0, 0));
+        currentHealth = maxHealth;
+        RpcSetHealthBar(maxHealth);
+    }
+
     void UpdateServer()
     {
+        Debug.Log("Current Health: " + currentHealth);
+        if (currentHealth <= 0)
+            Die();
+    }
 
+    [ClientRpc]
+    public void RpcChangeHealthBar(int amount)
+    {
+        healthBar.changeHealth(amount);
+    }
+
+    [ClientRpc]
+    public void RpcSetHealthBar(int amount)
+    {
+        healthBar.SetHealth(amount);
     }
 
     [Command]
@@ -89,5 +108,21 @@ public class Player : NetworkBehaviour
     void RequestTakeDamage(int amount)
     {
         currentHealth -= amount;
+        RpcChangeHealthBar(-amount);
+    }
+
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (isServer)
+        {
+            if (other.gameObject.CompareTag("Projectile"))
+            {
+                int damage = other.gameObject.GetComponent<Projectile>().damage;
+                currentHealth -= damage;
+                RpcChangeHealthBar(-damage);
+                Destroy(other.gameObject);
+            }
+        }
     }
 }

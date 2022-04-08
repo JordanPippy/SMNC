@@ -8,12 +8,14 @@ public class Projectile : NetworkBehaviour
     // Start is called before the first frame update
     [SerializeField] private float projectileSpeed;
     [SerializeField] private float duration;
+    [SerializeField][SyncVar] public int damage;
 
     void Start()
     {
-        duration = 5.0f;
+        duration = 2.0f;
         projectileSpeed = 10.0f;
-        Destroy(gameObject, 2.0f);
+        damage = 20;
+        Destroy(gameObject, duration);
     }
 
     void OnTriggerEnter(Collider other)
@@ -24,7 +26,7 @@ public class Projectile : NetworkBehaviour
         if (isServer)
         {
             //handle bullet collision
-            Destroy(gameObject);
+            //Destroy(gameObject);
         }
         else
             Destroy(gameObject);
