@@ -108,7 +108,7 @@ public class Movement : NetworkBehaviour
     }
 
     [ClientRpc]
-    void ForceMoveClient(Vector3 pos)
+    public void ForceMoveClient(Vector3 pos)
     {
         print("Force moved client to " + pos);
         controller.enabled = false;

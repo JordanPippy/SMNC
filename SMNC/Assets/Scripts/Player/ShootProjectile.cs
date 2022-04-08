@@ -62,8 +62,8 @@ public class ShootProjectile : NetworkBehaviour
         Vector3 projectileSpawnLocation = pos + (forward * distance);
         GameObject p = Instantiate(projectile, projectileSpawnLocation, rotation);
         NetworkServer.Spawn(p);
-        p.GetComponent<MeshRenderer>().enabled = false;
-        SpawnProjectileLocallyClientRpc(projectileSpawnLocation, rotation);
+        //p.GetComponent<MeshRenderer>().enabled = false;
+        //SpawnProjectileLocallyClientRpc(projectileSpawnLocation, rotation);
     }
 
     [ClientRpc]
