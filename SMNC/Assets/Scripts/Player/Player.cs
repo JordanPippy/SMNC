@@ -98,12 +98,7 @@ public class Player : NetworkBehaviour
 
     void UpdateClient()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Debug.Log("Before jump current Health: " + currentHealth);
-            RequestTakeDamage(20);
-            Debug.Log("After jump current Health: " + currentHealth);
-        }
+        
     }
 
     void Die()
@@ -188,7 +183,7 @@ public class Player : NetworkBehaviour
         {
             if (obj != this.gameObject)
             {
-                Vector3 dir = ((obj.transform.position + obj.GetComponent<BoxCollider>().center) - gameObject.transform.Find("HeadCamera").position).normalized;
+                Vector3 dir = ((obj.transform.position + obj.GetComponent<CharacterController>().center) - gameObject.transform.Find("HeadCamera").position).normalized;
                 Ray ray = new Ray(gameObject.transform.Find("HeadCamera").position, dir);
                 RaycastHit hit;
 

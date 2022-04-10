@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 2010415504639872752}
   - component: {fileID: 1493377622844018354}
   - component: {fileID: 3472620881753072695}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: DefaultProjectile
   m_TagString: Projectile
   m_Icon: {fileID: 0}
@@ -114,6 +114,7 @@ MonoBehaviour:
   syncInterval: 0.1
   projectileSpeed: 0
   duration: 0
+  damage: 0
 --- !u!54 &1493377622844018354
 Rigidbody:
   m_ObjectHideFlags: 0
