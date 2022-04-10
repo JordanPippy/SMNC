@@ -9,8 +9,8 @@ using UnityEngine.UI;
 
 public class Player : NetworkBehaviour
 {
-    public GameObject nameTagObj;
-    public bool nameSet = false; // Keep attempting to set the text of the nametag until set.
+    public GameObject nameTagObj, overheadHealthBarObj;
+    private HealthBar overheadHealthBar;
     public HealthBar healthBar;
     public SkinnedMeshRenderer mesh;
     [SyncVar] public string playerNameNetwork;
@@ -19,7 +19,8 @@ public class Player : NetworkBehaviour
     [SyncVar] public double curRtt;
     public float pingUpdateFrequency = 2.0f;
     public float lastRttTime;
-    public float offsetX, offsetY;
+    public bool valuesSetFromNetwork = false; // My attempt to fix race conditions and improve performance.
+    private bool nameSet = false;
 
     void Start()
     {
@@ -28,13 +29,16 @@ public class Player : NetworkBehaviour
             string playerName = GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().playerName; // Get playername from the network manager GUI.
             gameObject.name = "LocalPlayer"; // Set the clients personal gameobject's name.
             nameTagObj.SetActive(false); // Disable the clients nametag on their end.
+            overheadHealthBarObj.SetActive(false); // Disable the clients overhead healthbar on their end.
             mesh.enabled = false; // The client does not need to see their own body.
             lastRttTime = Time.time; // Begin the timer for the Rtt updates.
+            valuesSetFromNetwork = true; // Values should already be set for the client owned object.
             UpdatePlayerName(playerName);
         }
         else
         {
             nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork);
+            overheadHealthBar = overheadHealthBarObj.GetComponent<HealthBar>();
         }
 
         if (isServer)
@@ -42,24 +46,40 @@ public class Player : NetworkBehaviour
             maxHealth = 100;
             currentHealth = maxHealth;
         }
+
         if (isLocalPlayer)
         {
             GetComponentInChildren<Canvas>().enabled = true;
             healthBar.SetMaxHealth(maxHealth);
         }
         else
+        {
             GetComponentInChildren<Canvas>().enabled = false;
+            overheadHealthBar.SetHealth(currentHealth);
+        }
     }
 
     void Update()
     {
-        if (!isLocalPlayer && !nameSet)
+        /* 
+         * This block is to prevent race conditions when attemping to set the info from the network upon object creation.
+         * Ideally, we do not want code running in Update() unless it is absolutely necessary, as it can affect performance.
+         * Once all values are set, a flag is flipped and this code will no longer be ran.
+         */ 
+        if (!valuesSetFromNetwork && !isLocalPlayer)
         {
-            if (playerNameNetwork != "")
+            if (!nameSet && playerNameNetwork != "")
             {
                 nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork);
                 nameSet = true;
             }
+
+            if (overheadHealthBar.GetHealth() == 0f)
+            {
+                overheadHealthBar.SetHealth(currentHealth);
+            }
+            
+            valuesSetFromNetwork = (nameSet && overheadHealthBar.GetHealth() != 0f); // Stop running this code if the values are set.
         }
 
         if (isLocalPlayer)
@@ -68,9 +88,7 @@ public class Player : NetworkBehaviour
             UpdateRtt();
         }
         if (isServer)
-            UpdateServer();
-        
-        
+            UpdateServer();   
     }
 
     void UpdateClient()
@@ -92,7 +110,6 @@ public class Player : NetworkBehaviour
 
     void UpdateServer()
     {
-        Debug.Log("Current Health: " + currentHealth);
         if (currentHealth <= 0)
             Die();
     }
@@ -100,13 +117,20 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     public void RpcChangeHealthBar(int amount)
     {
-        healthBar.changeHealth(amount);
+        if (isLocalPlayer)
+            healthBar.changeHealth(amount);
+        else
+            overheadHealthBar.changeHealth(amount);
     }
 
     [ClientRpc]
     public void RpcSetHealthBar(int amount)
     {
-        healthBar.SetHealth(amount);
+        if (isLocalPlayer)
+            healthBar.SetHealth(amount);
+        else
+            overheadHealthBar.SetHealth(amount);
+        
     }
 
     [Command]
@@ -138,7 +162,6 @@ public class Player : NetworkBehaviour
         currentHealth -= amount;
         RpcChangeHealthBar(-amount);
     }
-
 
     void OnTriggerEnter(Collider other)
     {
