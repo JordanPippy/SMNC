@@ -25,4 +25,9 @@ public class HealthBar : MonoBehaviour
         SetHealth(health);
     }
 
+    public float GetHealth()
+    {
+        return slider.value;
+    }
+
 }
