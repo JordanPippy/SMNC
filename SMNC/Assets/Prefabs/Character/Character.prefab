@@ -282,7 +282,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1341460666444487353}
   - component: {fileID: 1341460666434975011}
-  - component: {fileID: 7676315693920448938}
   - component: {fileID: 6693483895916219935}
   - component: {fileID: 1341460666444318552}
   - component: {fileID: 1341460666444318550}
@@ -337,19 +336,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!65 &7676315693920448938
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1341460666444318553}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1.9519815, z: 1}
-  m_Center: {x: 0, y: 0.8724804, z: 0}
 --- !u!114 &6693483895916219935
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -815,7 +801,7 @@ Canvas:
   m_GameObject: {fileID: 4575790280117096866}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 0
   m_Camera: {fileID: 8909587314293142741}
   m_PlaneDistance: 1
   m_PixelPerfect: 0
@@ -825,7 +811,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!114 &850734253860334857
 MonoBehaviour:
@@ -1434,7 +1420,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 0}
   m_FillRect: {fileID: 8954016392575748023}
   m_HandleRect: {fileID: 0}
-  m_Direction: 0
+  m_Direction: 1
   m_MinValue: 0
   m_MaxValue: 100
   m_WholeNumbers: 1
