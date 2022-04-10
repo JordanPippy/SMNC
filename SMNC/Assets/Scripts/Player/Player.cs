@@ -9,7 +9,8 @@ using UnityEngine.UI;
 
 public class Player : NetworkBehaviour
 {
-    public GameObject nameTagObj, overheadHealthBarObj;
+    public GameObject overheadUI;
+    private GameObject nameTagObj, overheadHealthBarObj;
     private HealthBar overheadHealthBar;
     public HealthBar healthBar;
     public SkinnedMeshRenderer mesh;
@@ -28,8 +29,7 @@ public class Player : NetworkBehaviour
         {
             string playerName = GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().playerName; // Get playername from the network manager GUI.
             gameObject.name = "LocalPlayer"; // Set the clients personal gameobject's name.
-            nameTagObj.SetActive(false); // Disable the clients nametag on their end.
-            overheadHealthBarObj.SetActive(false); // Disable the clients overhead healthbar on their end.
+            overheadUI.SetActive(false); // Disable the clients overhead info on their end.
             mesh.enabled = false; // The client does not need to see their own body.
             lastRttTime = Time.time; // Begin the timer for the Rtt updates.
             valuesSetFromNetwork = true; // Values should already be set for the client owned object.
@@ -37,7 +37,10 @@ public class Player : NetworkBehaviour
         }
         else
         {
+            gameObject.transform.Find("HeadCamera").gameObject.SetActive(false);
+            nameTagObj = overheadUI.transform.Find("NameTag").gameObject;
             nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork);
+            overheadHealthBarObj = overheadUI.transform.Find("Health Bar").gameObject;
             overheadHealthBar = overheadHealthBarObj.GetComponent<HealthBar>();
         }
 
@@ -86,7 +89,9 @@ public class Player : NetworkBehaviour
         {
             UpdateClient();
             UpdateRtt();
+            UpdateOverheadUIVisibility();
         }
+
         if (isServer)
             UpdateServer();   
     }
@@ -173,6 +178,31 @@ public class Player : NetworkBehaviour
                 currentHealth -= damage;
                 RpcChangeHealthBar(-damage);
                 Destroy(other.gameObject);
+            }
+        }
+    }
+
+    void UpdateOverheadUIVisibility()
+    {
+        foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Player"))
+        {
+            if (obj != this.gameObject)
+            {
+                Vector3 dir = ((obj.transform.position + obj.GetComponent<BoxCollider>().center) - gameObject.transform.Find("HeadCamera").position).normalized;
+                Ray ray = new Ray(gameObject.transform.Find("HeadCamera").position, dir);
+                RaycastHit hit;
+
+                if (Physics.Raycast(ray, out hit))
+                {
+                    if (hit.collider.gameObject == obj)
+                    {
+                        obj.GetComponent<Player>().overheadUI.SetActive(true);
+                    }
+                    else
+                    {
+                        obj.GetComponent<Player>().overheadUI.SetActive(false);
+                    }
+                }
             }
         }
     }
