@@ -22,11 +22,11 @@ public class Projectile : NetworkBehaviour
     {
         if (other.gameObject.CompareTag("Projectile"))
             return;
-        Debug.Log("COLLISION ");
+        Debug.Log("COLLISION with: " + other.gameObject.name);
         if (isServer)
         {
             //handle bullet collision
-            //Destroy(gameObject);
+            Destroy(gameObject);
         }
         else
             Destroy(gameObject);
