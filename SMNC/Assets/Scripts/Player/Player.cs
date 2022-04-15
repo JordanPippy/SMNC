@@ -104,7 +104,7 @@ public class Player : NetworkBehaviour
     {
         if (Input.GetKeyDown(KeyCode.P))
         {
-            ability1.Use();
+            ability1.Use(transform);
         }
     }
 
