@@ -23,7 +23,8 @@ public class Player : NetworkBehaviour
     public bool valuesSetFromNetwork = false; // My attempt to fix race conditions and improve performance.
     private bool nameSet = false;
 
-    private AbilityBase ability1;
+    private AbilityBase ability1, ability2;
+    public GameManager gm;
 
     void Start()
     {
@@ -57,7 +58,10 @@ public class Player : NetworkBehaviour
             GetComponentInChildren<Canvas>().enabled = true;
             healthBar.SetMaxHealth(maxHealth);
 
-            ability1 = Database.GetAbility(0);
+            gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+
+            ability1 = gm.GetAbility("TestAbility1");
+            ability2 = gm.GetAbility("TestAbility2");
         }
         else
         {
@@ -103,9 +107,9 @@ public class Player : NetworkBehaviour
     void UpdateClient()
     {
         if (Input.GetKeyDown(KeyCode.P))
-        {
             ability1.Use(transform);
-        }
+        if (Input.GetKeyDown(KeyCode.K))
+            ability2.Use(transform);
     }
 
     void Die()

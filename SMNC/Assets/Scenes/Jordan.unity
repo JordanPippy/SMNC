@@ -827,7 +827,7 @@ GameObject:
   - component: {fileID: 1411145609}
   m_Layer: 0
   m_Name: GameManager
-  m_TagString: Untagged
+  m_TagString: GameManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -858,7 +858,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e07908886b835654a926a948b2f270d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testAbilityProjectile: {fileID: 6814662285158218356, guid: 88e7e4d439ed172499e723fb1eea857a, type: 3}
+  abilities:
+  - {fileID: 11400000, guid: 22d35598c3d81bb499ae3ffd6894e995, type: 2}
+  - {fileID: 11400000, guid: ff85a683410a0c94fa63c402534b8351, type: 2}
 --- !u!1 &1433302508
 GameObject:
   m_ObjectHideFlags: 0
