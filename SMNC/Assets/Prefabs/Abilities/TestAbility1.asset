@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 529eecd6c82b4114da89be1bd1c84468, type: 3}
+  m_Name: TestAbility1
+  m_EditorClassIdentifier: 
+  title: TestAbility1
+  projectile: {fileID: 6814662285158218356, guid: 88e7e4d439ed172499e723fb1eea857a, type: 3}
