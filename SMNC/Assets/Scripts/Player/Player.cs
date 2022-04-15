@@ -23,6 +23,8 @@ public class Player : NetworkBehaviour
     public bool valuesSetFromNetwork = false; // My attempt to fix race conditions and improve performance.
     private bool nameSet = false;
 
+    private AbilityBase ability1;
+
     void Start()
     {
         if (isLocalPlayer)
@@ -54,6 +56,8 @@ public class Player : NetworkBehaviour
         {
             GetComponentInChildren<Canvas>().enabled = true;
             healthBar.SetMaxHealth(maxHealth);
+
+            ability1 = Database.GetAbility(0);
         }
         else
         {
@@ -98,7 +102,10 @@ public class Player : NetworkBehaviour
 
     void UpdateClient()
     {
-        
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            ability1.Use();
+        }
     }
 
     void Die()
