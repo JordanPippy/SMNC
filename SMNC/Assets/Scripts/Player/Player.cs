@@ -23,7 +23,7 @@ public class Player : NetworkBehaviour
     public bool valuesSetFromNetwork = false; // My attempt to fix race conditions and improve performance.
     private bool nameSet = false;
 
-    private AbilityBase ability1, ability2;
+    private List<AbilityBase> abilities;
     public GameManager gm;
 
     void Start()
@@ -56,18 +56,18 @@ public class Player : NetworkBehaviour
         if (isLocalPlayer)
         {
             GetComponentInChildren<Canvas>().enabled = true;
-            healthBar.SetMaxHealth(maxHealth);
-
-            gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-
-            ability1 = gm.GetAbility("TestAbility1");
-            ability2 = gm.GetAbility("TestAbility2");
+            healthBar.SetMaxHealth(maxHealth);   
         }
         else
         {
             GetComponentInChildren<Canvas>().enabled = false;
             overheadHealthBar.SetHealth(currentHealth);
         }
+
+        gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        abilities = new List<AbilityBase>();
+        abilities.Add(gm.GetAbility("TestAbility1"));
+        abilities.Add(gm.GetAbility("TestAbility2"));
     }
 
     void Update()
@@ -107,9 +107,9 @@ public class Player : NetworkBehaviour
     void UpdateClient()
     {
         if (Input.GetKeyDown(KeyCode.P))
-            ability1.Use(transform);
+            UseAbility(0);
         if (Input.GetKeyDown(KeyCode.K))
-            ability2.Use(transform);
+            UseAbility(1);
     }
 
     void Die()
@@ -148,6 +148,23 @@ public class Player : NetworkBehaviour
     void UpdatePlayerName(string nam)
     {
         playerNameNetwork = nam;
+    }
+
+    void UseAbility(int abilityIndex)
+    {
+        RPCUseAbility(abilityIndex);
+    }
+
+    [Command]
+    void RPCUseAbility(int abilityIndex)
+    {
+        RPCUseAbilityClient(abilityIndex);
+    }
+
+    [ClientRpc]
+    void RPCUseAbilityClient(int abilityIndex)
+    {
+        abilities[abilityIndex].Use(transform);
     }
 
     // The following is used to control how often the rtt is updated.
