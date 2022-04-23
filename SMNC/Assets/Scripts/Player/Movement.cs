@@ -102,7 +102,6 @@ public class Movement : NetworkBehaviour
         {
             Debug.Log("Detected cheating!");
             ForceMoveClient(networkPosition);
-            networkPosition = new Vector3(0, 0, 0);
         }
         else
             networkPosition = transform.position;
