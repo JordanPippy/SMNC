@@ -11,6 +11,7 @@ public class Player : NetworkBehaviour
 {
     public GameObject overheadUI;
     private GameObject nameTagObj, overheadHealthBarObj;
+    public TextMeshProUGUI statusEffectUI;
     private HealthBar overheadHealthBar;
     public HealthBar healthBar;
     public SkinnedMeshRenderer mesh;
@@ -23,8 +24,8 @@ public class Player : NetworkBehaviour
     public bool valuesSetFromNetwork = false; // My attempt to fix race conditions and improve performance.
     private bool nameSet = false;
 
-    private List<AbilityBase> abilities;
-    public GameManager gm;
+    public List<AbilityBase> abilities = new List<AbilityBase>();
+    public List<StatusEffectInfo> statusEffects = new List<StatusEffectInfo>();
 
     void Start()
     {
@@ -64,10 +65,8 @@ public class Player : NetworkBehaviour
             overheadHealthBar.SetHealth(currentHealth);
         }
 
-        gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
-        abilities = new List<AbilityBase>();
-        abilities.Add(gm.GetAbility("TestAbility1"));
-        abilities.Add(gm.GetAbility("TestAbility2"));
+        abilities.Add(GameManager.Instance.GetAbility("StunShot"));
+        abilities.Add(GameManager.Instance.GetAbility("TestAbility2"));
     }
 
     void Update()
@@ -102,6 +101,8 @@ public class Player : NetworkBehaviour
 
         if (isServer)
             UpdateServer();   
+        
+        UpdateStatusAffects();
     }
 
     void UpdateClient()
@@ -123,6 +124,46 @@ public class Player : NetworkBehaviour
     {
         if (currentHealth <= 0)
             Die();
+    }
+
+    // Activate each status effect active on the player.
+    void UpdateStatusAffects()
+    {
+        List<StatusEffectInfo> toBeRemoved = new List<StatusEffectInfo>();
+        string UIText = "";
+        foreach(StatusEffectInfo effect in statusEffects)
+        {
+            if (effect.elapsed <= 0)
+            {
+                effect.status.StartEffect(this.gameObject);
+            }
+            else if (effect.elapsed >= effect.duration)
+            {
+                effect.status.EndEffect(this.gameObject);
+                toBeRemoved.Add(effect);
+            }
+            else
+            {
+                if (Time.time - effect.lastDuringCall >= effect.status.tickRate)
+                {
+                    effect.lastDuringCall = Time.time;
+                    effect.status.DuringEffect(this.gameObject);
+                }
+            }
+
+            effect.elapsed += Time.deltaTime;
+
+            if (isLocalPlayer)
+                UIText += (effect.status.statusName + ": " + (effect.duration - effect.elapsed) + "\n");
+        }
+
+        if (isLocalPlayer)
+            statusEffectUI.SetText(UIText);
+
+        foreach(StatusEffectInfo effect in toBeRemoved)
+        {
+            statusEffects.Remove(effect);
+        }
     }
 
     [ClientRpc]
@@ -167,6 +208,12 @@ public class Player : NetworkBehaviour
         abilities[abilityIndex].Use(transform);
     }
 
+    [ClientRpc]
+    void RpcAddStatusEffect(int statusIndex, float duration)
+    {
+        statusEffects.Add(new StatusEffectInfo(GameManager.Instance.GetStatusEffect(statusIndex), duration));
+    }
+
     // The following is used to control how often the rtt is updated.
     void UpdateRtt()
     {
@@ -197,9 +244,20 @@ public class Player : NetworkBehaviour
         {
             if (other.gameObject.CompareTag("Projectile"))
             {
-                int damage = other.gameObject.GetComponent<Projectile>().damage;
+                Projectile proj = other.gameObject.GetComponent<Projectile>();
+                int damage = proj.damage;
                 currentHealth -= damage;
                 RpcChangeHealthBar(-damage);
+
+                // If the projectile has a status effect applied to it, apply it.
+                if (other.gameObject.TryGetComponent(out ApplyStatusEffect statusEff))
+                {
+                    if (statusEff.OnHitEffect != null)
+                    {
+                        RpcAddStatusEffect(GameManager.Instance.GetStatusEffectIndex(statusEff.OnHitEffect.effect), statusEff.OnHitEffect.duration);
+                    }
+                }
+
                 Destroy(other.gameObject);
             }
         }
@@ -228,5 +286,20 @@ public class Player : NetworkBehaviour
                 }
             }
         }
+    }
+}
+
+[Serializable]
+public class StatusEffectInfo
+{
+    public StatusEffect status;
+    public float lastDuringCall = 0; // When was During last called?
+    public float elapsed = 0; // How long the effect has ran for.
+    public float duration = 0; // How long the effect lasts for.
+
+    public StatusEffectInfo(StatusEffect status, float duration)
+    {
+        this.status = status;
+        this.duration = duration;
     }
 }
