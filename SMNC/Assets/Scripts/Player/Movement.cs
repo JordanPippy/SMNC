@@ -28,9 +28,7 @@ public class Movement : NetworkBehaviour
 
     [SyncVar] private Vector3 networkPosition;
     private InputData clientInput;
-    
     public bool jumpRegistered;
-
 
     private void Awake()
     {
