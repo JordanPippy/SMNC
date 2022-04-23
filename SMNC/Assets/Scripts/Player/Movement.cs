@@ -7,6 +7,7 @@ public class Movement : NetworkBehaviour
 {
     public Camera HeadCamera;
     [SyncVar] private float moveSpeed = 5.0f;
+    public float moveSpeedModifier = 0f; // Used for status effects.
 
     // This may need to become/already is a global variable. REMEMBER GRAVITY IS NEGATIVE PEOPLE. WE. DONT. FLY.
     [SyncVar] private float gravity = -9.81f; 
@@ -27,9 +28,7 @@ public class Movement : NetworkBehaviour
 
     [SyncVar] private Vector3 networkPosition;
     private InputData clientInput;
-    
     public bool jumpRegistered;
-
 
     private void Awake()
     {
@@ -88,7 +87,7 @@ public class Movement : NetworkBehaviour
             return;
         InputData initialData = clientInput;
         MovementCalculation();
-        UpdateNetworkPos(initialData, moveSpeed);
+        UpdateNetworkPos(initialData, GetMoveSpeed());
     }
 
     [Command]
@@ -97,11 +96,10 @@ public class Movement : NetworkBehaviour
         //clientInput = inputs;
         //MovementCalculation();
         float acceptableDifference = 2.0f;
-        if (Vector3.Distance(ReportClientPos(), networkPosition) >= acceptableDifference || clientSpeed != moveSpeed)
+        if (Vector3.Distance(ReportClientPos(), networkPosition) >= acceptableDifference || clientSpeed != (moveSpeed + moveSpeedModifier))
         {
             Debug.Log("Detected cheating!");
-            ForceMoveClient(new Vector3(0, 0, 0));
-            networkPosition = new Vector3(0, 0, 0);
+            ForceMoveClient(networkPosition);
         }
         else
             networkPosition = transform.position;
@@ -160,13 +158,22 @@ public class Movement : NetworkBehaviour
         /*controller fnc can be split into 2 fncs (move*moveSpeed) and playerVerticalVelocity both 
             *individually multiplied by deltaTime
             */
-        controller.Move(((clientInput.moveDirection * moveSpeed)+playerVerticalVelocity) * Time.deltaTime);   
+        controller.Move(((clientInput.moveDirection * GetMoveSpeed())+playerVerticalVelocity) * Time.deltaTime);   
     }
 
     IEnumerator EnableControllerDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         controller.enabled = true;
+    }
+
+    public float GetMoveSpeed()
+    {
+        return moveSpeed + moveSpeedModifier;
+    }
+    public void SetMoveSpeedMod(float speed)
+    {
+        moveSpeedModifier = speed;
     }
 }
 

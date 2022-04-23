@@ -112,8 +112,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  projectileSpeed: 0
-  duration: 0
+  projectileSpeed: 10
+  duration: 2
   damage: 0
 --- !u!54 &1525587640582066033
 Rigidbody:

@@ -6,15 +6,12 @@ using Mirror;
 public class Projectile : NetworkBehaviour
 {
     // Start is called before the first frame update
-    [SerializeField] private float projectileSpeed;
-    [SerializeField] private float duration;
-    [SerializeField][SyncVar] public int damage;
+    [SerializeField] private float projectileSpeed = 10.0f;
+    [SerializeField] private float duration = 2.0f;
+    [SerializeField][SyncVar] public int damage = 20;
 
     void Start()
     {
-        duration = 2.0f;
-        projectileSpeed = 10.0f;
-        damage = 20;
         Destroy(gameObject, duration);
     }
 
