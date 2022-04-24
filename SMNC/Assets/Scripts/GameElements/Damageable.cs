@@ -24,18 +24,28 @@ public abstract class Damageable : NetworkBehaviour
     void UpdateServer()
     {
         if (currentHealth <= 0)
-        {
-            Destroy(gameObject);
             OnDeath();
-        }
+    }
+
+    protected void HealthSetup(int maximum)
+    {
+        this.maxHealth = maximum;
+        this.currentHealth = this.maxHealth;
+        this.healthBar.SetMaxHealth(this.maxHealth);
     }
 
     public abstract void OnDeath();
 
     public void TakeDamage(int damage)
     {
-        healthBar.changeHealth(-damage);
         currentHealth -= damage;
+        RpcSetHealthBar(currentHealth);
+    }
+
+    [ClientRpc]
+    public void RpcSetHealthBar(int amount)
+    {
+        healthBar.SetHealth(amount);
     }
 
     void OnTriggerEnter(Collider other)

@@ -8,9 +8,7 @@ public class Nexus : Damageable
     protected override void Start()
     {
         base.Start();
-        maxHealth = 200;
-        currentHealth = maxHealth;
-        healthBar.SetMaxHealth(maxHealth);
+        base.HealthSetup(200);
     }
 
     // Update is called once per frame
