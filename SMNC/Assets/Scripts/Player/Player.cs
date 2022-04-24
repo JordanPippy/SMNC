@@ -182,7 +182,6 @@ public class Player : NetworkBehaviour
             healthBar.SetHealth(amount);
         else
             overheadHealthBar.SetHealth(amount);
-        
     }
 
     [Command]
