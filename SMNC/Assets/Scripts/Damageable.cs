@@ -3,22 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 
-public class Damageable : NetworkBehaviour
+public abstract class Damageable : NetworkBehaviour
 {
     // Start is called before the first frame update
-    Camera mainCamera;
     public HealthBar healthBar;
 
-    public int currentHealth;
-    void Start()
+    public int currentHealth, maxHealth;
+    protected virtual void Start()
     {
-        mainCamera = Camera.main;
-        gameObject.GetComponent<Canvas>().worldCamera = mainCamera;
-        currentHealth = 100;
+
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         if (isServer)
             UpdateServer();
@@ -26,15 +23,19 @@ public class Damageable : NetworkBehaviour
 
     void UpdateServer()
     {
-        if (currentHealth == 0)
+        if (currentHealth <= 0)
         {
             Destroy(gameObject);
+            OnDeath();
         }
     }
+
+    public abstract void OnDeath();
 
     public void TakeDamage(int damage)
     {
         healthBar.changeHealth(-damage);
+        currentHealth -= damage;
     }
 
     void OnTriggerEnter(Collider other)
@@ -43,10 +44,7 @@ public class Damageable : NetworkBehaviour
         {
             if (other.gameObject.CompareTag("Projectile"))
             {
-                int damage = other.gameObject.GetComponent<Projectile>().damage;
-                currentHealth -= damage;
-                //RpcChangeHealthBar(-damage);
-                TakeDamage(damage);
+                TakeDamage(other.gameObject.GetComponent<Projectile>().damage);
                 Destroy(other.gameObject);
             }
         }
