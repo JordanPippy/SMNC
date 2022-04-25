@@ -100,8 +100,11 @@ public class Player : NetworkBehaviour
         }
 
         if (isServer)
-            UpdateServer();   
-        
+            UpdateServer();
+    }
+
+    void FixedUpdate()
+    {
         UpdateStatusAffects();
     }
 

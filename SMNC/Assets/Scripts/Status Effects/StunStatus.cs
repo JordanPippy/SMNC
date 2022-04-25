@@ -8,11 +8,11 @@ public class StunStatus : StatusEffect
     public override void StartEffect(GameObject tar)
     {
         Movement movementScript = tar.GetComponent<Movement>();
-        movementScript.SetMoveSpeedMod(movementScript.GetMoveSpeed() * -1); // Negate the move speed of the target.
+        movementScript.canMove = false;
     }
 
     public override void EndEffect(GameObject tar)
     {
-        tar.GetComponent<Movement>().SetMoveSpeedMod(0); // Effectively reset the movespeed to normal speed.
+        tar.GetComponent<Movement>().canMove = true; // Effectively reset the movespeed to normal speed.
     }
 }

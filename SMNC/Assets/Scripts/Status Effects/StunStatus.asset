@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: StunStatus
   m_EditorClassIdentifier: 
   statusName: Stun
-  duplicateType: 2
+  duplicateType: 0
   tickRate: -1

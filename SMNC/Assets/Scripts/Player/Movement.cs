@@ -6,8 +6,8 @@ using Mirror;
 public class Movement : NetworkBehaviour
 {
     public Camera HeadCamera;
+    [SyncVar] public bool canMove = true;
     [SyncVar] private float moveSpeed = 5.0f;
-    public float moveSpeedModifier = 0f; // Used for status effects.
 
     // This may need to become/already is a global variable. REMEMBER GRAVITY IS NEGATIVE PEOPLE. WE. DONT. FLY.
     [SyncVar] private float gravity = -9.81f; 
@@ -52,9 +52,32 @@ public class Movement : NetworkBehaviour
 
     void Update()
     {
+        GetMovementInput();
+    }
 
+    /*
+    * FixedUpdate is where movement/physics based operations should take place.
+    * Do not try to do them in Update().
+    *
+    * move = move.normalized will normalize the movement vector.
+    * This means that the character will move the same speed 
+    * diagonally as the do straight. Because pythagoras.
+    *
+    */
+    void FixedUpdate()
+    {
         if (!isLocalPlayer)
             return;
+        InputData initialData = clientInput;
+        MovementCalculation();
+        UpdateNetworkPos(initialData, GetMoveSpeed());
+    }
+
+    void GetMovementInput()
+    {
+        if (!isLocalPlayer || !canMove)
+            return;
+
         //moveSpeed += 0.1f;
         //Debug.Log("Client gravity: " + moveSpeed);
         // Move the character relative to the direction they are facing.
@@ -73,32 +96,11 @@ public class Movement : NetworkBehaviour
             clientInput.hardFalling = true;
     }
 
-    /*
-    * FixedUpdate is where movement/physics based operations should take place.
-    * Do not try to do them in Update().
-    *
-    * move = move.normalized will normalize the movement vector.
-    * This means that the character will move the same speed 
-    * diagonally as the do straight. Because pythagoras.
-    *
-    */
-    
-    void FixedUpdate()
-    {
-        if (!isLocalPlayer)
-            return;
-        InputData initialData = clientInput;
-        MovementCalculation();
-        UpdateNetworkPos(initialData, GetMoveSpeed());
-    }
-
     [Command]
     void UpdateNetworkPos(InputData inputs, float clientSpeed)
     {
-        //clientInput = inputs;
-        //MovementCalculation();
         float acceptableDifference = 2.0f;
-        if (Vector3.Distance(ReportClientPos(), networkPosition) >= acceptableDifference || clientSpeed != (moveSpeed + moveSpeedModifier))
+        if (Vector3.Distance(ReportClientPos(), networkPosition) >= acceptableDifference || clientSpeed != GetMoveSpeed())
         {
             Debug.Log("Detected cheating!");
             ForceMoveClient(networkPosition);
@@ -124,9 +126,8 @@ public class Movement : NetworkBehaviour
 
     void MovementCalculation()
     {
-        if (player.currentHealth <= 0 || !controller.enabled)
+        if (player.currentHealth <= 0 || !controller.enabled || !canMove)
             return;
-
 
         /* 
         * Jumping is handled by applying a constant velocity to the player for
@@ -176,11 +177,10 @@ public class Movement : NetworkBehaviour
 
     public float GetMoveSpeed()
     {
-        return moveSpeed + moveSpeedModifier;
-    }
-    public void SetMoveSpeedMod(float speed)
-    {
-        moveSpeedModifier = speed;
+        if (canMove)
+            return moveSpeed;
+        else
+            return 0;
     }
 }
 
