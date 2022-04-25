@@ -46,6 +46,8 @@ public class Movement : NetworkBehaviour
 
         HeadCamera.GetComponent<Camera>().enabled = isLocalPlayer;
         HeadCamera.GetComponent<AudioListener>().enabled = isLocalPlayer;
+
+        player = GetComponent<Player>();
     }
 
     void Update()
@@ -122,6 +124,10 @@ public class Movement : NetworkBehaviour
 
     void MovementCalculation()
     {
+        if (player.currentHealth <= 0 || !controller.enabled)
+            return;
+
+
         /* 
         * Jumping is handled by applying a constant velocity to the player for
         * a duration of time. This is to prevent the player from snapping to
@@ -131,6 +137,7 @@ public class Movement : NetworkBehaviour
         * units the player will travel upwards, but don't quote this on that.
         */
         //if the player is jumping (duh)
+
         if (clientInput.jump)
         {
             clientInput.jump = false;
