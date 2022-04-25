@@ -15,4 +15,4 @@ MonoBehaviour:
   title: StunShot
   projectile: {fileID: 6814662285158218356, guid: 88e7e4d439ed172499e723fb1eea857a, type: 3}
   effect: {fileID: 11400000, guid: 66413967b565ee047b1ec6c53b7d1d44, type: 2}
-  duration: 10
+  duration: 5

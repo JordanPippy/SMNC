@@ -144,17 +144,20 @@ public class Player : NetworkBehaviour
             }
             else
             {
-                if (Time.time - effect.lastDuringCall >= effect.status.tickRate)
+                if (effect.status.tickRate >= 0)
                 {
-                    effect.lastDuringCall = Time.time;
-                    effect.status.DuringEffect(this.gameObject);
+                    if (Time.time - effect.lastDuringCall >= effect.status.tickRate)
+                    {
+                        effect.lastDuringCall = Time.time;
+                        effect.status.DuringEffect(this.gameObject);
+                    }
                 }
             }
 
             effect.elapsed += Time.deltaTime;
 
             if (isLocalPlayer)
-                UIText += (effect.status.statusName + ": " + (effect.duration - effect.elapsed) + "\n");
+                UIText += (effect.status.statusName + ": " + (effect.GetTimeLeft()) + "\n");
         }
 
         if (isLocalPlayer)
@@ -210,7 +213,32 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     void RpcAddStatusEffect(int statusIndex, float duration)
     {
-        statusEffects.Add(new StatusEffectInfo(GameManager.Instance.GetStatusEffect(statusIndex), duration));
+        StatusEffect effect = GameManager.Instance.GetStatusEffect(statusIndex);
+        
+        if (effect.duplicateType == StatusEffect.DuplicateHandling.Stack) // Apply both effects simultaneously.
+        {
+            statusEffects.Add(new StatusEffectInfo(effect, duration));
+        }
+        else if (effect.duplicateType == StatusEffect.DuplicateHandling.Extend || effect.duplicateType == StatusEffect.DuplicateHandling.Ignore)
+        {
+            int existingEffectIndex = statusEffects.FindIndex(x => x.status == effect);
+
+            if (existingEffectIndex != -1) // If found existing effect.
+            {
+                if (effect.duplicateType == StatusEffect.DuplicateHandling.Extend)
+                {
+                    if (duration > statusEffects[existingEffectIndex].GetTimeLeft()) // Extend the duration if longer.
+                    {
+                        statusEffects[existingEffectIndex].duration = duration; // Just extend duration of existing effect.
+                        statusEffects[existingEffectIndex].elapsed = 0;
+                    }
+                }
+            }
+            else
+            {
+                statusEffects.Add(new StatusEffectInfo(effect, duration));
+            }
+        }
     }
 
     // The following is used to control how often the rtt is updated.
@@ -300,5 +328,10 @@ public class StatusEffectInfo
     {
         this.status = status;
         this.duration = duration;
+    }
+
+    public float GetTimeLeft()
+    {
+        return duration - elapsed;
     }
 }
