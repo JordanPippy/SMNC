@@ -37,6 +37,7 @@ public class MouseLook : NetworkBehaviour
 
                 // Lock the viewing angles to be +-90 degrees.
                 mouseY = Mathf.Clamp(mouseY, -90f, 90f);
+                mouseX %= GameManager.FULL_CIRCLE_DEGREES;
 
                 // Only rotate the camera along the X-axis (Up and down)
                 mainCamera.transform.localEulerAngles = new Vector3(mouseY, 0, 0);

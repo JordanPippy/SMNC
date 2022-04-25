@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviour
 {
     // Initialize a singleton for the game manager
     public static GameManager Instance;
+    public static readonly float FULL_CIRCLE_DEGREES = 360.0f;
 
     private void Awake()
     {
