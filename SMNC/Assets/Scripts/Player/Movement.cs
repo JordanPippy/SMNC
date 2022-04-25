@@ -115,6 +115,7 @@ public class Movement : NetworkBehaviour
         print("Force moved client to " + pos);
         controller.enabled = false;
         transform.position = pos;
+        networkPosition = pos;
         StartCoroutine(EnableControllerDelay(0.5f));
     }
 
