@@ -52,6 +52,7 @@ public class Player : NetworkBehaviour
         {
             maxHealth = 100;
             currentHealth = maxHealth;
+            GetComponent<Movement>().ForceMoveClient(SpawnManager.Instance.GetAvailableSpawnPoint());
         }
 
         if (isLocalPlayer)
@@ -118,7 +119,7 @@ public class Player : NetworkBehaviour
 
     void Die()
     {
-        GetComponent<Movement>().ForceMoveClient(new Vector3(0, 0, 0));
+        GetComponent<Movement>().ForceMoveClient(SpawnManager.Instance.GetAvailableSpawnPoint());
         currentHealth = maxHealth;
         RpcSetHealthBar(maxHealth);
     }
