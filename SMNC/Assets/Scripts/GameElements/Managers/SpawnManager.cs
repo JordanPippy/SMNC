@@ -30,20 +30,18 @@ public class SpawnManager : MonoBehaviour
 
     public Vector3 GetAvailableSpawnPoint()
     {
-        if (spawnLogic == SpawnLogic.Random)
+        switch(spawnLogic)
         {
-            return spawnPoints[Random.Range(0,spawnPoints.Count)].GetSpawn();
+            case SpawnLogic.Random:
+                return spawnPoints[Random.Range(0,spawnPoints.Count)].GetSpawn();
+            
+            case SpawnLogic.RoundRobin:
+                SpawnPoint sp = spawnPoints[0]; // Basically doing a FIFO operation, taking the first element and moving it to the last in the list.
+                spawnPoints.RemoveAt(0);
+                spawnPoints.Add(sp);
+                return sp.GetSpawn();
         }
-        else if (spawnLogic == SpawnLogic.RoundRobin)
-        {
-            SpawnPoint sp = spawnPoints[0]; // Basically doing a FIFO operation, taking the first element and moving it to the last in the list.
-            spawnPoints.RemoveAt(0);
-            spawnPoints.Add(sp);
-
-            return sp.GetSpawn();
-        }
-        
-        return Vector3.zero; // We better not reach here or it means I goofed.
+        return Vector3.zero; // We better not reach here or it means I goofed. 
     }
 
     public enum SpawnLogic {Random, RoundRobin}
