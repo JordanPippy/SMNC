@@ -26,7 +26,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 107758264718541840}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.027163982, y: 1.727, z: -0.009775162}
+  m_LocalPosition: {x: 0, y: 1.727, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4050300244796847331}
@@ -315,6 +315,7 @@ Transform:
   - {fileID: 1341460666444487357}
   - {fileID: 293035948924393157}
   - {fileID: 738602940172410324}
+  - {fileID: 1493738695160374298}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -355,6 +356,8 @@ MonoBehaviour:
   statusEffectUI: {fileID: 2154580366364322305}
   healthBar: {fileID: 5267894343908539793}
   mesh: {fileID: 1341460666439044065}
+  mouseLook: {fileID: 1341460666444318550}
+  tempAbilityObject: {fileID: 7538126649039426215}
   playerNameNetwork: 
   maxHealth: 100
   currentHealth: 0
@@ -379,7 +382,7 @@ MonoBehaviour:
   syncMode: 1
   syncInterval: 0
   HeadCamera: {fileID: 8909587314293142741}
-  moveSpeedModifier: 0
+  canMove: 1
   horizontal: 0
   vertical: 0
   jumpRegistered: 0
@@ -401,6 +404,8 @@ MonoBehaviour:
   mainCamera: {fileID: 8909587314293142741}
   mouseX: 0
   mouseY: 0
+  cameraLookPos: {x: 0, y: 0, z: 0}
+  cameraLookRot: {x: 0, y: 0, z: 0}
 --- !u!114 &1341460666444318548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1570,6 +1575,36 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &7538126649039426215
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1493738695160374298}
+  m_Layer: 0
+  m_Name: TempAbilityObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1493738695160374298
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7538126649039426215}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1341460666444487353}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8039954986427273796
 GameObject:
   m_ObjectHideFlags: 0

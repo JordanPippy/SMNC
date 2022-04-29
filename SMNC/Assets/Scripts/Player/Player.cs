@@ -15,6 +15,8 @@ public class Player : NetworkBehaviour
     private HealthBar overheadHealthBar;
     public HealthBar healthBar;
     public SkinnedMeshRenderer mesh;
+    public MouseLook mouseLook;
+    [SerializeField] private GameObject tempAbilityObject;
     [SyncVar] public string playerNameNetwork;
     [SyncVar] public int maxHealth = 100;
     [SyncVar] public int currentHealth;
@@ -23,6 +25,8 @@ public class Player : NetworkBehaviour
     public float lastRttTime;
     public bool valuesSetFromNetwork = false; // My attempt to fix race conditions and improve performance.
     private bool nameSet = false;
+
+    private Camera headCamera;
 
     public List<AbilityBase> abilities = new List<AbilityBase>();
     public List<StatusEffectInfo> statusEffects = new List<StatusEffectInfo>();
@@ -37,6 +41,7 @@ public class Player : NetworkBehaviour
             mesh.enabled = false; // The client does not need to see their own body.
             lastRttTime = Time.time; // Begin the timer for the Rtt updates.
             valuesSetFromNetwork = true; // Values should already be set for the client owned object.
+            headCamera = gameObject.transform.Find("HeadCamera").GetComponent<Camera>();
             UpdatePlayerName(playerName);
         }
         else
@@ -66,7 +71,8 @@ public class Player : NetworkBehaviour
             overheadHealthBar.SetHealth(currentHealth);
         }
 
-        abilities.Add(GameManager.Instance.GetAbility("StunShot"));
+        //abilities.Add(GameManager.Instance.GetAbility("StunShot"));
+        abilities.Add(GameManager.Instance.GetAbility("Throw"));
         abilities.Add(GameManager.Instance.GetAbility("TestAbility2"));
     }
 
@@ -211,7 +217,15 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     void RPCUseAbilityClient(int abilityIndex)
     {
-        abilities[abilityIndex].Use(transform);
+        // Resetting values for the temp gameobject.
+        tempAbilityObject.transform.position = Vector3.zero;
+        tempAbilityObject.transform.localEulerAngles = Vector3.zero;
+        tempAbilityObject.transform.rotation = Quaternion.identity;
+
+        // Set gameobject position and rotation to a combination of the clients viewing angle and position.
+        tempAbilityObject.transform.position = new Vector3(transform.position.x, transform.position.y + 1.727f, transform.position.z);
+        tempAbilityObject.transform.Rotate(mouseLook.cameraLookRot.x, transform.localEulerAngles.y, 0);
+        abilities[abilityIndex].Use(tempAbilityObject.transform);
     }
 
     [ClientRpc]

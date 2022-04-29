@@ -11,6 +11,9 @@ public class MouseLook : NetworkBehaviour
     [SyncVar]
     private Vector3 networkRotation;
 
+    [SyncVar] public Vector3 cameraLookPos;
+    [SyncVar] public Vector3 cameraLookRot;
+
     void Start()
     {
         // We do what no Unity games can figure out. Lock that cursor.
@@ -45,16 +48,16 @@ public class MouseLook : NetworkBehaviour
                 // Only rotate the player along the Y-axis (Left and right)
                 transform.localEulerAngles = new Vector3(0, mouseX, 0);
 
-                UpdateNetworkRotate(transform.localEulerAngles);
+                UpdateNetworkRotate(transform.localEulerAngles, mainCamera.transform.localEulerAngles);
             }
         }
     }
 
     // No server validation, because you can't cheat with this alone.
     [Command]
-    void UpdateNetworkRotate(Vector3 rot)
+    void UpdateNetworkRotate(Vector3 rot, Vector3 cLRot)
     {
         networkRotation = rot;
+        cameraLookRot = cLRot;
     }
-
 }
