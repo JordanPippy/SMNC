@@ -24,6 +24,8 @@ public class Player : NetworkBehaviour
     public bool valuesSetFromNetwork = false; // My attempt to fix race conditions and improve performance.
     private bool nameSet = false;
 
+    private Camera headCamera;
+
     public List<AbilityBase> abilities = new List<AbilityBase>();
     public List<StatusEffectInfo> statusEffects = new List<StatusEffectInfo>();
 
@@ -37,6 +39,7 @@ public class Player : NetworkBehaviour
             mesh.enabled = false; // The client does not need to see their own body.
             lastRttTime = Time.time; // Begin the timer for the Rtt updates.
             valuesSetFromNetwork = true; // Values should already be set for the client owned object.
+            headCamera = gameObject.transform.Find("HeadCamera").GetComponent<Camera>();
             UpdatePlayerName(playerName);
         }
         else
@@ -66,7 +69,8 @@ public class Player : NetworkBehaviour
             overheadHealthBar.SetHealth(currentHealth);
         }
 
-        abilities.Add(GameManager.Instance.GetAbility("StunShot"));
+        //abilities.Add(GameManager.Instance.GetAbility("StunShot"));
+        abilities.Add(GameManager.Instance.GetAbility("Throw"));
         abilities.Add(GameManager.Instance.GetAbility("TestAbility2"));
     }
 
@@ -211,7 +215,10 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     void RPCUseAbilityClient(int abilityIndex)
     {
-        abilities[abilityIndex].Use(transform);
+        if (headCamera == null)
+            headCamera = gameObject.transform.Find("HeadCamera").GetComponent<Camera>();
+        //abilities[abilityIndex].Use(transform);
+        abilities[abilityIndex].Use(headCamera.transform);
     }
 
     [ClientRpc]
