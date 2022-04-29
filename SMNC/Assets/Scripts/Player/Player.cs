@@ -15,6 +15,8 @@ public class Player : NetworkBehaviour
     private HealthBar overheadHealthBar;
     public HealthBar healthBar;
     public SkinnedMeshRenderer mesh;
+    public MouseLook mouseLook;
+    [SerializeField] private GameObject tempAbilityObject;
     [SyncVar] public string playerNameNetwork;
     [SyncVar] public int maxHealth = 100;
     [SyncVar] public int currentHealth;
@@ -215,10 +217,15 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     void RPCUseAbilityClient(int abilityIndex)
     {
-        if (headCamera == null)
-            headCamera = gameObject.transform.Find("HeadCamera").GetComponent<Camera>();
-        //abilities[abilityIndex].Use(transform);
-        abilities[abilityIndex].Use(headCamera.transform);
+        // Resetting values for the temp gameobject.
+        tempAbilityObject.transform.position = Vector3.zero;
+        tempAbilityObject.transform.localEulerAngles = Vector3.zero;
+        tempAbilityObject.transform.rotation = Quaternion.identity;
+
+        // Set gameobject position and rotation to a combination of the clients viewing angle and position.
+        tempAbilityObject.transform.position = new Vector3(transform.position.x, transform.position.y + 1.727f, transform.position.z);
+        tempAbilityObject.transform.Rotate(mouseLook.cameraLookRot.x, transform.localEulerAngles.y, 0);
+        abilities[abilityIndex].Use(tempAbilityObject.transform);
     }
 
     [ClientRpc]
