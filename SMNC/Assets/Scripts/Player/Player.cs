@@ -33,47 +33,11 @@ public class Player : NetworkBehaviour
 
     void Start()
     {
-        if (isLocalPlayer)
-        {
-            string playerName = GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().playerName; // Get playername from the network manager GUI.
-            gameObject.name = "LocalPlayer"; // Set the clients personal gameobject's name.
-            overheadUI.SetActive(false); // Disable the clients overhead info on their end.
-            mesh.enabled = false; // The client does not need to see their own body.
-            lastRttTime = Time.time; // Begin the timer for the Rtt updates.
-            valuesSetFromNetwork = true; // Values should already be set for the client owned object.
-            headCamera = gameObject.transform.Find("HeadCamera").GetComponent<Camera>();
-            UpdatePlayerName(playerName);
-        }
-        else
-        {
-            gameObject.transform.Find("HeadCamera").gameObject.SetActive(false);
-            nameTagObj = overheadUI.transform.Find("NameTag").gameObject;
-            nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork);
-            overheadHealthBarObj = overheadUI.transform.Find("Health Bar").gameObject;
-            overheadHealthBar = overheadHealthBarObj.GetComponent<HealthBar>();
-        }
+        SetupPlayer(); // Initialize a player.
 
-        if (isServer)
-        {
-            maxHealth = 100;
-            currentHealth = maxHealth;
-            GetComponent<Movement>().ForceMoveClient(SpawnManager.Instance.GetAvailableSpawnPoint());
-        }
-
-        if (isLocalPlayer)
-        {
-            GetComponentInChildren<Canvas>().enabled = true;
-            healthBar.SetMaxHealth(maxHealth);   
-        }
-        else
-        {
-            GetComponentInChildren<Canvas>().enabled = false;
-            overheadHealthBar.SetHealth(currentHealth);
-        }
-
-        //abilities.Add(GameManager.Instance.GetAbility("StunShot"));
+        //abilities.Add(GameManager.Instance.GetAbility("TestAbility2"));
         abilities.Add(GameManager.Instance.GetAbility("Throw"));
-        abilities.Add(GameManager.Instance.GetAbility("TestAbility2"));
+        abilities.Add(GameManager.Instance.GetAbility("StunShot"));
     }
 
     void Update()
@@ -134,6 +98,44 @@ public class Player : NetworkBehaviour
     {
         if (currentHealth <= 0)
             Die();
+    }
+
+    void SetupPlayer()
+    {
+        overheadUI.SetActive(!isLocalPlayer); // Disable the clients overhead info on their end.
+        gameObject.transform.Find("HeadCamera").gameObject.SetActive(isLocalPlayer); // Disable camera if not owned by the player.
+        GetComponentInChildren<Canvas>().enabled = isLocalPlayer; // Enable GUI canvas only for local player.
+
+        if (isServer)
+        {
+            maxHealth = 100;
+            currentHealth = maxHealth;
+            GetComponent<Movement>().ForceMoveClient(SpawnManager.Instance.GetAvailableSpawnPoint());
+        }
+
+        if (isLocalPlayer)
+        {
+            string playerName = GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().playerName; // Get playername from the network manager GUI.
+            UpdatePlayerName(playerName);
+
+            gameObject.name = "LocalPlayer"; // Set the clients personal gameobject's name.
+            mesh.enabled = false; // The client does not need to see their own body.
+            lastRttTime = Time.time; // Begin the timer for the Rtt updates.
+            valuesSetFromNetwork = true; // Values should already be set for the client owned object.
+
+            headCamera = gameObject.transform.Find("HeadCamera").GetComponent<Camera>();
+
+            healthBar.SetMaxHealth(maxHealth);   
+        }
+        else
+        {
+            nameTagObj = overheadUI.transform.Find("NameTag").gameObject;
+            nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork);
+
+            overheadHealthBarObj = overheadUI.transform.Find("Health Bar").gameObject;
+            overheadHealthBar = overheadHealthBarObj.GetComponent<HealthBar>();
+            overheadHealthBar.SetHealth(currentHealth);
+        }
     }
 
     // Activate each status effect active on the player.
