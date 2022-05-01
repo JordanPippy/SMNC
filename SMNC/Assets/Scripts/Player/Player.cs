@@ -11,6 +11,7 @@ public class Player : NetworkBehaviour
 {
     public GameObject overheadUI;
     private GameObject nameTagObj, overheadHealthBarObj;
+    public PlayerUIMessageBar messageBar;
     public TextMeshProUGUI statusEffectUI;
     private HealthBar overheadHealthBar;
     public HealthBar healthBar;
@@ -92,6 +93,7 @@ public class Player : NetworkBehaviour
         GetComponent<Movement>().ForceMoveClient(SpawnManager.Instance.GetAvailableSpawnPoint());
         currentHealth = maxHealth;
         RpcSetHealthBar(maxHealth);
+        SendMessageToAll(playerNameNetwork + " died.");
     }
 
     void UpdateServer()
@@ -333,6 +335,18 @@ public class Player : NetworkBehaviour
                 }
             }
         }
+    }
+
+    [TargetRpc]
+    void SendMessageToPlayer(NetworkConnection target, string message)
+    {
+        GameObject.Find("LocalPlayer").GetComponent<Player>().messageBar.AddMessage(message);
+    }
+
+    [ClientRpc]
+    void SendMessageToAll(string message)
+    {
+        GameObject.Find("LocalPlayer").GetComponent<Player>().messageBar.AddMessage(message);
     }
 }
 
