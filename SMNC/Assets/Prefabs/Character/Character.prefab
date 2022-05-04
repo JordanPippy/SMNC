@@ -288,6 +288,7 @@ GameObject:
   - component: {fileID: 1341460666444318550}
   - component: {fileID: 1341460666444318548}
   - component: {fileID: -5075985700934342040}
+  - component: {fileID: 3810407259793588144}
   - component: {fileID: 1341460666444318551}
   - component: {fileID: 6077332334184768148}
   - component: {fileID: 7357256870233414885}
@@ -439,6 +440,22 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   playerList: []
+--- !u!114 &3810407259793588144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1341460666444318553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14b46e3f71a032a4d862a7223b71357d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  canvasUI: {fileID: 0}
+  buttonPrefab: {fileID: 3939729571546966952, guid: 9063bb4f1c39fc94e8c84ee1ad3c30cc, type: 3}
 --- !u!143 &1341460666444318551
 CharacterController:
   m_ObjectHideFlags: 0
