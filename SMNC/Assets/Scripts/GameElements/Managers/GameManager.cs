@@ -8,6 +8,8 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     public static readonly float FULL_CIRCLE_DEGREES = 360.0f;
 
+    public GameObject pauseMenu;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -18,6 +20,8 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
         }
+        pauseMenu = GameObject.Find("PauseMenu");
+        pauseMenu.SetActive(false);
     }
 
     public List<AbilityBase> abilities;

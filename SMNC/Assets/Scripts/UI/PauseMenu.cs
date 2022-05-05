@@ -12,7 +12,6 @@ public class PauseMenu : NetworkBehaviour
     public GameObject buttonPrefab;
     private GameObject abilityMenuParent;
     private RectTransform parentTransform;
-    private bool abilitiesOpen = false;
     private List<GameObject> abilitiesButtons = new List<GameObject>();
     private int index = 0;
 
@@ -20,11 +19,16 @@ public class PauseMenu : NetworkBehaviour
     {
         if (!isLocalPlayer)
             return;
-        canvasUI = GameObject.Find("PauseMenu").GetComponent<Canvas>();
+        GameManager.Instance.pauseMenu.SetActive(true);
+        GameObject.Find("AbilityMenu").SetActive(true);
+        canvasUI = GameManager.Instance.pauseMenu.GetComponent<Canvas>();
         canvasUI.enabled = true;
         abilityMenuParent = GameObject.Find("AbilityMenu");
         parentTransform = abilityMenuParent.GetComponent<RectTransform>();
+
         LoadAbilities();
+
+        abilityMenuParent.SetActive(false);
         canvasUI.enabled = false;
     }
 
@@ -35,9 +39,9 @@ public class PauseMenu : NetworkBehaviour
             return;
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Debug.Log("Should open Pause Menu");
-            Debug.Log(canvasUI);
+            abilityMenuParent.SetActive(false);
             canvasUI.enabled = !canvasUI.enabled;
+            GetComponent<MouseLook>().enabled = !canvasUI.enabled;
         }
     }
 
@@ -58,7 +62,6 @@ public class PauseMenu : NetworkBehaviour
             button.GetComponent<Button>().onClick.AddListener(delegate {AddAbilityListener(title);});
 
             abilitiesButtons.Add(button);
-
         }
     }
 
@@ -79,13 +82,16 @@ public class PauseMenu : NetworkBehaviour
     {
         RequestAbilitySwap(index, name);
         index++;
-        if (index == 2)
+        if (index == 2) 
             index = 0;
     }
 
     public void OpenAbilities()
     {
-        abilitiesOpen = !abilitiesOpen;     
-        abilityMenuParent.SetActive(abilitiesOpen);
+        if (abilityMenuParent == null)
+        {
+            abilityMenuParent = GameManager.Instance.pauseMenu.transform.Find("AbilityMenu").gameObject;
+        }
+        abilityMenuParent.SetActive(!abilityMenuParent.activeSelf);
     }
 }
