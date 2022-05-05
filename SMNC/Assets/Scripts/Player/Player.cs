@@ -209,6 +209,7 @@ public class Player : NetworkBehaviour
 
     void UseAbility(int abilityIndex)
     {
+        Debug.Log("Using: " + abilities[abilityIndex].title);
         RPCUseAbility(abilityIndex);
     }
 
