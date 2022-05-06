@@ -31,6 +31,11 @@ public class MouseLook : NetworkBehaviour
             if (Input.GetKey(KeyCode.Escape))
                 Cursor.lockState = CursorLockMode.None;
 
+            if (Cursor.lockState == CursorLockMode.None && !GameManager.Instance.pauseMenu.activeSelf)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+
             // Don't bother updating if nothing has changed.
             if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y")!= 0)
             {

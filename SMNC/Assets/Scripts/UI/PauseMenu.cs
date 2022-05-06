@@ -19,6 +19,7 @@ public class PauseMenu : NetworkBehaviour
     {
         if (!isLocalPlayer)
             return;
+
         GameManager.Instance.pauseMenu.SetActive(true);
         GameObject.Find("AbilityMenu").SetActive(true);
         canvasUI = GameManager.Instance.pauseMenu.GetComponent<Canvas>();
@@ -29,7 +30,7 @@ public class PauseMenu : NetworkBehaviour
         LoadAbilities();
 
         abilityMenuParent.SetActive(false);
-        canvasUI.enabled = false;
+        GameManager.Instance.pauseMenu.SetActive(false);
     }
 
     // Update is called once per frame
@@ -40,8 +41,7 @@ public class PauseMenu : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             abilityMenuParent.SetActive(false);
-            canvasUI.enabled = !canvasUI.enabled;
-            GetComponent<MouseLook>().enabled = !canvasUI.enabled;
+            GameManager.Instance.pauseMenu.SetActive(!GameManager.Instance.pauseMenu.activeSelf);
         }
     }
 
