@@ -75,7 +75,7 @@ public class PauseMenu : NetworkBehaviour
     [ClientRpc]
     void AbilitySwapRpc(int index, string name)
     {
-        GetComponent<Player>().abilities[index] = GameManager.Instance.GetAbility(name);
+        GetComponent<Player>().abilities[index+1] = GameManager.Instance.GetAbility(name);
     }
 
     void AddAbilityListener(string name)
