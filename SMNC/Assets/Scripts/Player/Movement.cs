@@ -27,7 +27,7 @@ public class Movement : NetworkBehaviour
     private Player player;
 
     [SyncVar] private Vector3 networkPosition;
-    private InputData clientInput;
+    public InputData clientInput;
     public bool jumpRegistered;
 
     private void Awake()
@@ -185,7 +185,7 @@ public class Movement : NetworkBehaviour
     }
 }
 
-struct InputData 
+public struct InputData 
 {
     public Vector3 moveDirection;
     public bool jump; // Whether the jump key has been pressed.
