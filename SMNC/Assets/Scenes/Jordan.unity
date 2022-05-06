@@ -1105,12 +1105,16 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 8227649166410244162, guid: 8b5ee3a7308061943bea63e3fe6ed6c1, type: 3}
       propertyPath: abilities.Array.size
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8227649166410244162, guid: 8b5ee3a7308061943bea63e3fe6ed6c1, type: 3}
       propertyPath: abilities.Array.data[3]
       value: 
       objectReference: {fileID: 11400000, guid: d1e8911e39c7002498a3b905cef244c7, type: 2}
+    - target: {fileID: 8227649166410244162, guid: 8b5ee3a7308061943bea63e3fe6ed6c1, type: 3}
+      propertyPath: abilities.Array.data[4]
+      value: 
+      objectReference: {fileID: 11400000, guid: bdc50c6c95ca8b247a91d6a3e74e7ae7, type: 2}
     - target: {fileID: 8227649166410244163, guid: 8b5ee3a7308061943bea63e3fe6ed6c1, type: 3}
       propertyPath: m_RootOrder
       value: 0

@@ -36,7 +36,7 @@ public class Player : NetworkBehaviour
     {
         SetupPlayer(); // Initialize a player.
 
-        //abilities.Add(GameManager.Instance.GetAbility("TestAbility2"));
+        abilities.Add(GameManager.Instance.GetAbility("Shoot"));
         abilities.Add(GameManager.Instance.GetAbility("Throw"));
         abilities.Add(GameManager.Instance.GetAbility("StunShot"));
     }
@@ -82,10 +82,12 @@ public class Player : NetworkBehaviour
 
     void UpdateClient()
     {
-        if (Input.GetKeyDown(KeyCode.P))
+        if (Input.GetButtonDown("Fire1"))
             UseAbility(0);
-        if (Input.GetKeyDown(KeyCode.K))
+        if (Input.GetKeyDown(KeyCode.P))
             UseAbility(1);
+        if (Input.GetKeyDown(KeyCode.K))
+            UseAbility(2);
     }
 
     void Die()
@@ -209,7 +211,6 @@ public class Player : NetworkBehaviour
 
     void UseAbility(int abilityIndex)
     {
-        Debug.Log("Using: " + abilities[abilityIndex].title);
         RPCUseAbility(abilityIndex);
     }
 
