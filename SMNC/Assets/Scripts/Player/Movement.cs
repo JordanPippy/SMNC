@@ -27,6 +27,7 @@ public class Movement : NetworkBehaviour
     private Player player;
 
     [SyncVar] private Vector3 networkPosition;
+    [SyncVar] public bool isMoving = false;
     public InputData clientInput;
     public bool jumpRegistered;
 
@@ -109,6 +110,13 @@ public class Movement : NetworkBehaviour
             networkPosition = transform.position;
     }
 
+    [Command]
+    void UpdateIsMoving(Vector3 movement)
+    {
+        //Thats a ternary Brandon.
+        isMoving = movement != Vector3.zero;
+    }
+
     [ClientRpc]
     public void ForceMoveClient(Vector3 pos)
     {
@@ -160,6 +168,10 @@ public class Movement : NetworkBehaviour
         }
 
         clientInput.moveDirection = clientInput.moveDirection.normalized;
+
+        UpdateIsMoving(clientInput.moveDirection);
+
+
 
         // Add gravity to player's vertical velocity. 
         //playerVerticalVelocity.y -= gravity;

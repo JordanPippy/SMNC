@@ -16,6 +16,7 @@ public class CharacterAnimations : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        animator.SetBool("isWalking", movement.clientInput.moveDirection != Vector3.zero);
+        //animator.SetBool("isWalking", movement.clientInput.moveDirection != Vector3.zero);
+        animator.SetBool("isWalking", movement.isMoving);
     }
 }
