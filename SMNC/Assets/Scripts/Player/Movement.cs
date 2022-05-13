@@ -54,7 +54,8 @@ public class Movement : NetworkBehaviour
     void Update()
     {
         GetMovementInput();
-        UpdateIsMoving(clientInput.moveDirection);
+        if (isLocalPlayer)
+            UpdateIsMoving(clientInput.moveDirection);
     }
 
     /*
@@ -193,6 +194,7 @@ public class Movement : NetworkBehaviour
     }
 }
 
+[System.Serializable]
 public struct InputData 
 {
     public Vector3 moveDirection;
