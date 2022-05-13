@@ -194,6 +194,7 @@ public class Movement : NetworkBehaviour
     }
 }
 
+[System.Serializable]
 public struct InputData 
 {
     public Vector3 moveDirection;
