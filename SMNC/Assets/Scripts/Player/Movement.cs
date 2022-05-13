@@ -54,7 +54,8 @@ public class Movement : NetworkBehaviour
     void Update()
     {
         GetMovementInput();
-        UpdateIsMoving(clientInput.moveDirection);
+        if (isLocalPlayer)
+            UpdateIsMoving(clientInput.moveDirection);
     }
 
     /*
