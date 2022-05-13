@@ -54,6 +54,7 @@ public class Movement : NetworkBehaviour
     void Update()
     {
         GetMovementInput();
+        UpdateIsMoving(clientInput.moveDirection);
     }
 
     /*
@@ -113,7 +114,6 @@ public class Movement : NetworkBehaviour
     [Command]
     void UpdateIsMoving(Vector3 movement)
     {
-        //Thats a ternary Brandon.
         isMoving = movement != Vector3.zero;
     }
 
@@ -168,10 +168,6 @@ public class Movement : NetworkBehaviour
         }
 
         clientInput.moveDirection = clientInput.moveDirection.normalized;
-
-        UpdateIsMoving(clientInput.moveDirection);
-
-
 
         // Add gravity to player's vertical velocity. 
         //playerVerticalVelocity.y -= gravity;
