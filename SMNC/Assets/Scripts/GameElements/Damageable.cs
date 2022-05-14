@@ -34,6 +34,12 @@ public abstract class Damageable : NetworkBehaviour
         this.healthBar.SetMaxHealth(this.maxHealth);
     }
 
+    protected void ResetHealthBar()
+    {
+        this.currentHealth = this.maxHealth;
+        RpcSetHealthBar(this.currentHealth);
+    }
+
     public abstract void OnDeath();
 
     public void TakeDamage(int damage)
