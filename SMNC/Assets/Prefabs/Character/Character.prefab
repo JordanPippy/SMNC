@@ -284,6 +284,7 @@ GameObject:
   - component: {fileID: 1341460666444487353}
   - component: {fileID: 1341460666434975011}
   - component: {fileID: 6693483895916219935}
+  - component: {fileID: 3224467389336930529}
   - component: {fileID: 1341460666444318552}
   - component: {fileID: 1341460666444318550}
   - component: {fileID: -5075985700934342040}
@@ -354,22 +355,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
+  playerNameNetwork: 
+  playerName: 
+  mesh: {fileID: 1341460666439044065}
+  mouseLook: {fileID: 1341460666444318550}
+  tempAbilityObject: {fileID: 7538126649039426215}
+  maxHealth: 100
+  currentHealth: 0
+  abilities: []
+  statusEffects: []
+  playerUI: {fileID: 0}
+--- !u!114 &3224467389336930529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1341460666444318553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 471bc8e64027b874e82b11570e45bd0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
   overheadUI: {fileID: 8928964114989939515}
   messageBar: {fileID: 494078745039597441}
   statusEffectUI: {fileID: 2154580366364322305}
   healthBar: {fileID: 5267894343908539793}
-  mesh: {fileID: 1341460666439044065}
-  mouseLook: {fileID: 1341460666444318550}
-  tempAbilityObject: {fileID: 7538126649039426215}
-  playerNameNetwork: 
-  maxHealth: 100
-  currentHealth: 0
-  curRtt: 0
   pingUpdateFrequency: 2
-  lastRttTime: 0
   valuesSetFromNetwork: 0
-  abilities: []
-  statusEffects: []
+  lastRttTime: 0
+  curRtt: 0
 --- !u!114 &1341460666444318552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -386,9 +403,11 @@ MonoBehaviour:
   syncInterval: 0
   HeadCamera: {fileID: 8909587314293142741}
   canMove: 1
-  horizontal: 0
-  vertical: 0
-  jumpRegistered: 0
+  isMoving: 0
+  clientInput:
+    moveDirection: {x: 0, y: 0, z: 0}
+    jump: 0
+    hardFalling: 0
 --- !u!114 &1341460666444318550
 MonoBehaviour:
   m_ObjectHideFlags: 0

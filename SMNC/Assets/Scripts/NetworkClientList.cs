@@ -21,7 +21,7 @@ public class NetworkClientList : NetworkBehaviour
                 if (cli.identity != null)
                 {
                     tempList.Add(new PlayerInfo(cli.identity.gameObject.GetComponent<Player>().playerNameNetwork, 
-                    Math.Round(cli.identity.gameObject.GetComponent<Player>().curRtt * 1000)));
+                    Math.Round(cli.identity.gameObject.GetComponent<LocalPlayerUI>().curRtt * 1000)));
                 }
             }
 
