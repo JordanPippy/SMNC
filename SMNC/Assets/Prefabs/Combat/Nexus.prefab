@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4557393808859802349}
   - component: {fileID: 4557393808859802346}
   - component: {fileID: 4557393808859802345}
-  - component: {fileID: 4557393808859802344}
+  - component: {fileID: 3338859271094425961}
   m_Layer: 0
   m_Name: Nexus
   m_TagString: Untagged
@@ -140,9 +140,9 @@ MonoBehaviour:
   sceneId: 0
   serverOnly: 0
   visible: 0
-  m_AssetId: 
+  m_AssetId: de1117da7eb4c3c4eb5717f94a63c7c1
   hasSpawned: 0
---- !u!114 &4557393808859802344
+--- !u!114 &3338859271094425961
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -151,14 +151,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 4557393808859802348}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b92fd4373f352104b85f7eb64bc26ce6, type: 3}
+  m_Script: {fileID: 11500000, guid: 6c2b02ed0fb69784bb9b6fd5af1d89b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
   healthBar: {fileID: 1368236086647208249}
   currentHealth: 0
-  maxHealth: 0
+  maxHealth: 200
 --- !u!1001 &4557393807383163150
 PrefabInstance:
   m_ObjectHideFlags: 0

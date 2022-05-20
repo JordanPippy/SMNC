@@ -8,7 +8,7 @@ public class RespawnOnSpot : Damageable
     protected override void Start()
     {
         base.Start();
-        base.HealthSetup(100);
+        base.HealthSetup(maxHealth);
     }
 
     // Update is called once per frame
