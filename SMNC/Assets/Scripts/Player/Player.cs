@@ -9,31 +9,21 @@ using UnityEngine.UI;
 
 public class Player : NetworkBehaviour
 {
-    public GameObject overheadUI;
-    private GameObject nameTagObj, overheadHealthBarObj;
-    public PlayerUIMessageBar messageBar;
-    public TextMeshProUGUI statusEffectUI;
-    private HealthBar overheadHealthBar;
-    public HealthBar healthBar;
+    [SyncVar] public string playerNameNetwork;
+    public string playerName;
     public SkinnedMeshRenderer mesh;
     public MouseLook mouseLook;
     [SerializeField] private GameObject tempAbilityObject;
-    [SyncVar] public string playerNameNetwork;
     [SyncVar] public int maxHealth = 100;
     [SyncVar] public int currentHealth;
-    [SyncVar] public double curRtt;
-    public float pingUpdateFrequency = 2.0f;
-    public float lastRttTime;
-    public bool valuesSetFromNetwork = false; // My attempt to fix race conditions and improve performance.
-    private bool nameSet = false;
-
     private Camera headCamera;
-
     public List<AbilityBase> abilities = new List<AbilityBase>();
     public List<StatusEffectInfo> statusEffects = new List<StatusEffectInfo>();
+    public LocalPlayerUI playerUI;
 
     void Start()
     {
+        playerUI = GetComponent<LocalPlayerUI>();
         SetupPlayer(); // Initialize a player.
 
         abilities.Add(GameManager.Instance.GetAbility("Shoot"));
@@ -43,32 +33,9 @@ public class Player : NetworkBehaviour
 
     void Update()
     {
-        /* 
-         * This block is to prevent race conditions when attemping to set the info from the network upon object creation.
-         * Ideally, we do not want code running in Update() unless it is absolutely necessary, as it can affect performance.
-         * Once all values are set, a flag is flipped and this code will no longer be ran.
-         */ 
-        if (!valuesSetFromNetwork && !isLocalPlayer)
-        {
-            if (!nameSet && playerNameNetwork != "")
-            {
-                nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork);
-                nameSet = true;
-            }
-
-            if (overheadHealthBar.GetHealth() == 0f)
-            {
-                overheadHealthBar.SetHealth(currentHealth);
-            }
-            
-            valuesSetFromNetwork = (nameSet && overheadHealthBar.GetHealth() != 0f); // Stop running this code if the values are set.
-        }
-
         if (isLocalPlayer)
         {
             UpdateClient();
-            UpdateRtt();
-            UpdateOverheadUIVisibility();
         }
 
         if (isServer)
@@ -94,8 +61,8 @@ public class Player : NetworkBehaviour
     {
         GetComponent<Movement>().ForceMoveClient(SpawnManager.Instance.GetAvailableSpawnPoint());
         currentHealth = maxHealth;
-        RpcSetHealthBar(maxHealth);
-        SendMessageToAll(playerNameNetwork + " died.");
+        playerUI.RpcSetHealthBar(maxHealth);
+        playerUI.SendMessageToAll(playerNameNetwork + " died.");
     }
 
     void UpdateServer()
@@ -106,9 +73,7 @@ public class Player : NetworkBehaviour
 
     void SetupPlayer()
     {
-        overheadUI.SetActive(!isLocalPlayer); // Disable the clients overhead info on their end.
         gameObject.transform.Find("HeadCamera").gameObject.SetActive(isLocalPlayer); // Disable camera if not owned by the player.
-        GetComponentInChildren<Canvas>().enabled = isLocalPlayer; // Enable GUI canvas only for local player.
 
         if (isServer)
         {
@@ -119,26 +84,13 @@ public class Player : NetworkBehaviour
 
         if (isLocalPlayer)
         {
-            string playerName = GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().playerName; // Get playername from the network manager GUI.
+            playerName = GameObject.Find("NetworkManager").GetComponent<NetworkManagerHUD>().playerName; // Get playername from the network manager GUI.
             UpdatePlayerName(playerName);
 
             gameObject.name = "LocalPlayer"; // Set the clients personal gameobject's name.
             mesh.enabled = false; // The client does not need to see their own body.
-            lastRttTime = Time.time; // Begin the timer for the Rtt updates.
-            valuesSetFromNetwork = true; // Values should already be set for the client owned object.
 
             headCamera = gameObject.transform.Find("HeadCamera").GetComponent<Camera>();
-
-            healthBar.SetMaxHealth(maxHealth);   
-        }
-        else
-        {
-            nameTagObj = overheadUI.transform.Find("NameTag").gameObject;
-            nameTagObj.GetComponent<TextMeshProUGUI>().SetText(playerNameNetwork);
-
-            overheadHealthBarObj = overheadUI.transform.Find("Health Bar").gameObject;
-            overheadHealthBar = overheadHealthBarObj.GetComponent<HealthBar>();
-            overheadHealthBar.SetHealth(currentHealth);
         }
     }
 
@@ -177,36 +129,12 @@ public class Player : NetworkBehaviour
         }
 
         if (isLocalPlayer)
-            statusEffectUI.SetText(UIText);
+            playerUI.statusEffectUI.SetText(UIText);
 
         foreach(StatusEffectInfo effect in toBeRemoved)
         {
             statusEffects.Remove(effect);
         }
-    }
-
-    [ClientRpc]
-    public void RpcChangeHealthBar(int amount)
-    {
-        if (isLocalPlayer)
-            healthBar.changeHealth(amount);
-        else
-            overheadHealthBar.changeHealth(amount);
-    }
-
-    [ClientRpc]
-    public void RpcSetHealthBar(int amount)
-    {
-        if (isLocalPlayer)
-            healthBar.SetHealth(amount);
-        else
-            overheadHealthBar.SetHealth(amount);
-    }
-
-    [Command]
-    void UpdatePlayerName(string nam)
-    {
-        playerNameNetwork = nam;
     }
 
     void UseAbility(int abilityIndex)
@@ -265,28 +193,17 @@ public class Player : NetworkBehaviour
         }
     }
 
-    // The following is used to control how often the rtt is updated.
-    void UpdateRtt()
-    {
-        // Minimize the amount of messages sent to the server.
-        if (Time.time - lastRttTime >= pingUpdateFrequency)
-        {
-            lastRttTime = Time.time;
-            UpdateNetworkRTT(NetworkTime.rtt);
-        }
-    }
-
-    [Command]
-    void UpdateNetworkRTT(double rtt)
-    {
-        curRtt = rtt;
-    }
-
     [Command]
     void RequestTakeDamage(int amount)
     {
         currentHealth -= amount;
-        RpcChangeHealthBar(-amount);
+        playerUI.RpcChangeHealthBar(-amount);
+    }
+
+    [Command]
+    void UpdatePlayerName(string nam)
+    {
+        playerNameNetwork = nam;
     }
 
     void OnTriggerEnter(Collider other)
@@ -298,7 +215,7 @@ public class Player : NetworkBehaviour
                 Projectile proj = other.gameObject.GetComponent<Projectile>();
                 int damage = proj.damage;
                 currentHealth -= damage;
-                RpcChangeHealthBar(-damage);
+                playerUI.RpcChangeHealthBar(-damage);
 
                 // If the projectile has a status effect applied to it, apply it.
                 if (other.gameObject.TryGetComponent(out ApplyStatusEffect statusEff))
@@ -314,42 +231,6 @@ public class Player : NetworkBehaviour
         }
     }
 
-    void UpdateOverheadUIVisibility()
-    {
-        foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Player"))
-        {
-            if (obj != this.gameObject)
-            {
-                Vector3 dir = ((obj.transform.position + obj.GetComponent<CharacterController>().center) - gameObject.transform.Find("HeadCamera").position).normalized;
-                Ray ray = new Ray(gameObject.transform.Find("HeadCamera").position, dir);
-                RaycastHit hit;
-
-                if (Physics.Raycast(ray, out hit))
-                {
-                    if (hit.collider.gameObject == obj)
-                    {
-                        obj.GetComponent<Player>().overheadUI.SetActive(true);
-                    }
-                    else
-                    {
-                        obj.GetComponent<Player>().overheadUI.SetActive(false);
-                    }
-                }
-            }
-        }
-    }
-
-    [TargetRpc]
-    void SendMessageToPlayer(NetworkConnection target, string message)
-    {
-        GameObject.Find("LocalPlayer").GetComponent<Player>().messageBar.AddMessage(message);
-    }
-
-    [ClientRpc]
-    void SendMessageToAll(string message)
-    {
-        GameObject.Find("LocalPlayer").GetComponent<Player>().messageBar.AddMessage(message);
-    }
 }
 
 [Serializable]

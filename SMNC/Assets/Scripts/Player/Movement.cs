@@ -23,13 +23,11 @@ public class Movement : NetworkBehaviour
     //floatingJumpModifier is the amount of velocity the player gains by letting go of space during their jump.
     [SyncVar] private float floatingJumpModifier = 1.5f;  
     private CharacterController controller;
-    public float horizontal, vertical;
     private Player player;
 
     [SyncVar] private Vector3 networkPosition;
     [SyncVar] public bool isMoving = false;
     public InputData clientInput;
-    public bool jumpRegistered;
 
     private void Awake()
     {
@@ -71,9 +69,9 @@ public class Movement : NetworkBehaviour
     {
         if (!isLocalPlayer)
             return;
-        InputData initialData = clientInput;
+
         MovementCalculation();
-        UpdateNetworkPos(initialData, GetMoveSpeed());
+        UpdateNetworkPos(clientInput, GetMoveSpeed());
     }
 
     void GetMovementInput()
@@ -81,17 +79,14 @@ public class Movement : NetworkBehaviour
         if (!isLocalPlayer || !canMove)
             return;
 
-        //moveSpeed += 0.1f;
-        //Debug.Log("Client gravity: " + moveSpeed);
         // Move the character relative to the direction they are facing.
         clientInput.moveDirection = Input.GetAxisRaw("Horizontal") * transform.right 
-            + Input.GetAxisRaw("Vertical") * transform.forward;
+                                  + Input.GetAxisRaw("Vertical") * transform.forward;
 
         // If space is pressed, jump.
         if (Input.GetButtonDown("Jump") && controller.isGrounded)
         {
             clientInput.jump = true;
-            jumpRegistered = false;
             clientInput.hardFalling = false;
         }
 
@@ -103,7 +98,8 @@ public class Movement : NetworkBehaviour
     void UpdateNetworkPos(InputData inputs, float clientSpeed)
     {
         float acceptableDifference = 2.0f;
-        if (Vector3.Distance(ReportClientPos(), networkPosition) >= acceptableDifference || clientSpeed != GetMoveSpeed())
+        if (Vector3.Distance(ReportClientPos(), networkPosition) >= acceptableDifference || 
+            clientSpeed != GetMoveSpeed())
         {
             Debug.Log("Detected cheating!");
             ForceMoveClient(networkPosition);
@@ -118,6 +114,11 @@ public class Movement : NetworkBehaviour
         isMoving = movement != Vector3.zero;
     }
 
+    /*
+     * The CharacterController must be disabled before updating the position.
+     * Otherwise the fight will be relentless
+     */
+
     [ClientRpc]
     public void ForceMoveClient(Vector3 pos)
     {
@@ -125,7 +126,7 @@ public class Movement : NetworkBehaviour
         controller.enabled = false;
         transform.position = pos;
         networkPosition = pos;
-        StartCoroutine(EnableControllerDelay(0.5f));
+        StartCoroutine(EnableControllerDelay(0.5f)); // Delay to turn controller back on
     }
 
     [ClientCallback]
@@ -134,21 +135,17 @@ public class Movement : NetworkBehaviour
         return transform.position;
     }
 
-    void MovementCalculation()
+
+    /* 
+    * Jumping is handled by applying a constant velocity to the player for
+    * a duration of time. This is to prevent the player from snapping to
+    * their max jump height, and makes it a bit more smooth. 
+    *
+    * I THINK I have it so jump height represents the maximum number of Unity 
+    * units the player will travel upwards, but don't quote this on that.
+    */
+    private void CalculateJump()
     {
-        if (player.currentHealth <= 0 || !controller.enabled || !canMove)
-            return;
-
-        /* 
-        * Jumping is handled by applying a constant velocity to the player for
-        * a duration of time. This is to prevent the player from snapping to
-        * their max jump height, and makes it a bit more smooth. 
-        *
-        * I THINK I have it so jump height represents the maximum number of Unity 
-        * units the player will travel upwards, but don't quote this on that.
-        */
-        //if the player is jumping (duh)
-
         if (clientInput.jump)
         {
             clientInput.jump = false;
@@ -157,25 +154,30 @@ public class Movement : NetworkBehaviour
         else if (!controller.isGrounded)
         {
             //In this else if is when the player is NOT jumping but is still in the air
-            if (clientInput.hardFalling)
-                playerVerticalVelocity.y += (gravity * floatingJumpModifier) * Time.deltaTime;
-            else
-                playerVerticalVelocity.y += gravity * Time.deltaTime;    
+            playerVerticalVelocity.y += clientInput.hardFalling ? 
+                                        gravity * floatingJumpModifier * Time.deltaTime : // True Case
+                                        gravity * Time.deltaTime;                         // False Case
         }
         else 
         {
             //This else is when the player is not jumping and is grounded.
             playerVerticalVelocity.y = gravity * Time.deltaTime;
         }
+    }
+
+    void MovementCalculation()
+    {
+        if (player.currentHealth <= 0 || !controller.enabled || !canMove)
+            return;
+
+
+        CalculateJump();
 
         clientInput.moveDirection = clientInput.moveDirection.normalized;
 
-        // Add gravity to player's vertical velocity. 
-        //playerVerticalVelocity.y -= gravity;
-
-        /*controller fnc can be split into 2 fncs (move*moveSpeed) and playerVerticalVelocity both 
-            *individually multiplied by deltaTime
-            */
+        /* controller fnc can be split into 2 fncs (move*moveSpeed) and playerVerticalVelocity both 
+         * individually multiplied by deltaTime
+         */
         controller.Move(((clientInput.moveDirection * GetMoveSpeed())+playerVerticalVelocity) * Time.deltaTime);   
     }
 
@@ -187,10 +189,7 @@ public class Movement : NetworkBehaviour
 
     public float GetMoveSpeed()
     {
-        if (canMove)
-            return moveSpeed;
-        else
-            return 0;
+        return canMove ? moveSpeed : 0;
     }
 }
 
@@ -208,4 +207,3 @@ public struct InputData
         this.hardFalling = hardFalling;
     }
 }
-
