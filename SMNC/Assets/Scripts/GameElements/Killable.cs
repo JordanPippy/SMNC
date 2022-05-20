@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Nexus : Damageable
+public class Killable : Damageable
 {
     // Start is called before the first frame update
     protected override void Start()
     {
         base.Start();
-        base.HealthSetup(200);
+        base.HealthSetup(maxHealth);
     }
 
     // Update is called once per frame
@@ -19,7 +19,6 @@ public class Nexus : Damageable
 
     public override void OnDeath()
     {
-        Debug.Log("Nexus destroyed!");
         Destroy(gameObject);
     }
 }
