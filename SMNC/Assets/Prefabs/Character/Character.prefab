@@ -388,6 +388,11 @@ MonoBehaviour:
   canMove: 1
   horizontal: 0
   vertical: 0
+  isMoving: 0
+  clientInput:
+    moveDirection: {x: 0, y: 0, z: 0}
+    jump: 0
+    hardFalling: 0
   jumpRegistered: 0
 --- !u!114 &1341460666444318550
 MonoBehaviour:
